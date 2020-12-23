@@ -15,6 +15,7 @@
 *.lib
 
 # Executables
+wasmer-test-library
 *.exe
 
 # DUB
