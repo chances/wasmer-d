@@ -1,0 +1,35 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install D compiler
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: dmd-latest
+      - name: Cache DUB Artifacts
+        uses: actions/cache@v2
+        with:
+          path: ~/.dub
+          key: ${{ runner.os }}-dub-${{ hashFiles('**/dub.json') }}
+          restore-keys: |
+            ${{ runner.os }}-dub-
+      - name: Build Documentation
+        run: make docs
+
+      - name: GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2.1.2
+        with:
+          target_branch: gh-pages
+          build_dir: docs
+          keep_history: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

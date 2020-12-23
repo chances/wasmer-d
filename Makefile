@@ -6,22 +6,13 @@ LIBS_PATH := lib
 .DEFAULT_GOAL := docs
 all: docs
 
-thirdparty/moddable.zip:
-	wget https://github.com/Moddable-OpenSource/moddable/archive/OS201116.zip -q --show-progress -O thirdparty/moddable.zip
-thirdparty/moddable: thirdparty/moddable.zip
-	unzip thirdparty/moddable.zip -d thirdparty
-	@mv thirdparty/moddable-OS201116 thirdparty/moddable
-wasmer: thirdparty/moddable
-	@cd thirdparty/moddable/wasmer/makefiles/lin && env MODDABLE="$(CWD)/thirdparty/moddable" make -f xsc.mk
-	@rm -f lib/libwasmer.a
-	ar cr lib/libwasmer.a \
-		thirdparty/moddable/build/tmp/lin/debug/xsl/xsDefaults.o \
-		`find thirdparty/moddable/build/tmp/lin/debug/lib -name '*.o' ! -name 'xsc.c.o' ! -name 'xsmc.c.o'`
+wasmer: $(WASMER_DIR)/lib/libwasmer.so
+	@mkdir -p lib
+	@cp $(WASMER_DIR)/lib/libwasmer.so lib/.
 .PHONY : wasmer
-wasmer-release: thirdparty/moddable
-	@cd thirdparty/moddable/wasmer/makefiles/lin && env MODDABLE="$(CWD)/thirdparty/moddable" make GOAL=release -f xsc.mk
-	@rm -f lib/libwasmer.a
-	ar cr lib/libwasmer.a `find thirdparty/moddable/build/tmp/lin/release/xst -name '*.o' ! -name 'xst.o'`
+wasmer-release: $(WASMER_DIR)/lib/libwasmer.so
+	@mkdir -p lib
+	@cp $(WASMER_DIR)/lib/libwasmer.so lib/.
 .PHONY : wasmer-release
 
 source/wasmer/bindings/package.d:
