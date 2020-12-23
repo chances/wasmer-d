@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"copyright": "Copyright © 2020, Chance Snow",
   "targetType": "library",
-  "systemDependencies": "linux: wasmer-1.0-beta",
+  "systemDependencies": "linux: wasmer-1.0.0-rc1",
 	"preGenerateCommands": [
     "make source/wasmer/bindings/package.d"
   ],

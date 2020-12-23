@@ -36,7 +36,9 @@ jobs:
     #   if: startsWith(runner.os, 'Linux')
     #   run: sudo apt-get install --quiet -y libglfw3 libglfw3-dev
     - name: Install Wasmer
-      run: curl https://get.wasmer.io -sSfL | sh
+      run: |
+        curl https://get.wasmer.io -sSfL | sh
+        echo '/home/runner/.wasmer' >> $WASMER_DIR
     - name: Lint
       run: dub lint
     - name: Test
