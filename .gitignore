@@ -16,6 +16,7 @@
 
 # DUB
 .dub
+dub.selections.json
 docs.json
 __dummy.html
 docs/

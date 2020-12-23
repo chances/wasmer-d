@@ -1,0 +1,10 @@
+{
+	"name": "wasmer",
+	"description": "A standalone WebAssembly runtime for running WebAssembly outside of the browser",
+	"authors": [
+		"Chance Snow"
+	],
+	"license": "MIT",
+	"copyright": "Copyright © 2020, Chance Snow",
+	"targetType": "staticLibrary"
+}
