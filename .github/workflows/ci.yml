@@ -37,8 +37,8 @@ jobs:
     #   run: sudo apt-get install --quiet -y libglfw3 libglfw3-dev
     - name: Install Wasmer
       run: |
-        curl https://get.wasmer.io -sSfL | WASMER_DIR=$HOME/.wasmer sh
-        echo '$HOME/.wasmer' >> $WASMER_DIR
+        curl https://get.wasmer.io -sSfL | WASMER_DIR=${HOME}/.wasmer sh
+        echo 'WASMER_DIR=${HOME}/.wasmer' >> $GITHUB_ENV
     - name: Lint
       run: dub lint
     - name: Test
