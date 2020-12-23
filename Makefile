@@ -33,11 +33,11 @@ hello-world: bin/hello-world
 .PHONY: hello-world
 
 test:
-	dub test --parallel
+	env LD_LIBRARY_PATH=$(WASMER_DIR)/lib dub test --parallel
 .PHONY: test
 
 cover: $(SOURCES)
-	dub test --parallel --coverage
+	env LD_LIBRARY_PATH=$(WASMER_DIR)/lib dub test --parallel --coverage
 
 PACKAGE_VERSION := 0.1.0-alpha.1
 docs/sitemap.xml: $(SOURCES)
