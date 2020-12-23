@@ -1,3 +1,6 @@
+# Local Configuration
+.envrc
+
 # Compiled Object files
 *.o
 *.obj

@@ -6,5 +6,40 @@
 	],
 	"license": "MIT",
 	"copyright": "Copyright © 2020, Chance Snow",
-	"targetType": "staticLibrary"
+  "targetType": "library",
+  "systemDependencies": "linux: wasmer-1.0-beta",
+	"preGenerateCommands": [
+    "make source/wasmer/bindings/package.d"
+  ],
+  "preBuildCommands": [
+    "make wasmer"
+  ],
+  "lflags-posix": [
+    "-L$PACKAGE_DIR/lib"
+  ],
+  "libs": [
+    "wasmer"
+  ],
+  "configurations": [
+    {
+      "name": "library"
+    },
+    {
+      "name": "static",
+      "targetType": "staticLibrary"
+    },
+    {
+      "name": "release",
+      "preBuildCommands": [
+        "make wasmer-release"
+      ]
+    },
+    {
+      "name": "static-release",
+      "targetType": "staticLibrary",
+      "preBuildCommands": [
+        "make wasmer-release"
+      ]
+    }
+  ]
 }
