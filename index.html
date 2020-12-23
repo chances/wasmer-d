@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>API Reference - xs-d</title>
+		<link rel="stylesheet" type="text/css" href="./styles/ddox.css"/>
+		<link rel="stylesheet" href="./prettify/prettify.css" type="text/css"/>
+		<script type="text/javascript" src="./scripts/jquery.js">/**/</script><script type="text/javascript" src="./scripts/ddox.js">/**/</script>
+	</head>
+	<body onload="setupDdox();">
+<style>
+#main-nav > h1 {
+  display: flex;
+  align-items: flex-end;
+}
+#main-nav > h1 > span {
+  padding-bottom: 0.25em;
+}
+#logo {
+  margin-right: 0.5rem;
+  max-width: 4rem;
+}
+</style>
+<nav id="main-nav">
+  <h1 style="max-width: 9em;">
+    Wasmer Runtime D Bindings
+  </h1>
+  <ul style="list-style: none; padding: 0;">
+    <li>
+      <a href="https://chances.github.io/wasmer-d">API Reference</a>
+    </li>
+    <li>
+      <a href="https://code.dlang.org/packages/wasmer">Download</a>
+    </li>
+    <li>
+      <a href="https://github.com/chances/wasmer-d#readme">Open Source on GitHub</a>
+    </li>
+  </ul>
+  <h2>API Reference</h2>
+			<noscript>
+				<p style="color: red">The search functionality needs JavaScript enabled</p>
+			</noscript>
+			<div id="symbolSearchPane" style="display: none">
+				<form action="#" method="GET">
+					<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/>
+				</form>
+				<ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="./symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "./";
+$('#symbolSearchPane').show();</script>
+			</div>
+			<ul class="tree-view">
+			</ul>
+		</nav>
+		<div id="main-contents">
+<style>
+.bs-hbtn {
+  display: inline-block;
+  color: white;
+  height: 34pt;
+  vertical-align: top;
+  text-align: center;
+  float: right;
+}
+.bs-hbtn.red.left {
+  background: #ab1919;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: 100% 34pt, 100% 18pt, 18.5pt 34pt;
+  background-position: 0 0, 18pt 34pt, 0 0;
+  background-clip: content-box, border-box, border-box;
+}
+.bs-hbtn.black.right {
+  background: black;
+  margin-right: 18pt;
+  background-repeat: no-repeat, no-repeat;
+  background-size: 100% 34pt, 100% 18pt, 18.5pt 34pt;
+  background-position: 0 0, -18pt 34pt, 100% 0;
+  background-clip: content-box, border-box, border-box;
+}
+.dub-logo {
+  background-image: url(images/dub-logo.png);
+  width: 56px;
+  height: 100%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+#downloadButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#downloadButton large {
+  font-size: 14pt;
+  line-height: 16pt;
+}
+#downloadButton .content {
+  padding: 0 5pt;
+}
+</style>
+
+<a id="downloadButton" href="https://code.dlang.org/packages/wasmer">
+  <div class="bs-hbtn right black">
+    <div class="content">get <strong>wasmer</strong><br><large>0.1.0-alpha.1</large></div>
+  </div><div class="bs-hbtn left red">
+    <div class="dub-logo"></div>
+  </div>
+</a>
+
+<h1>Wasmer Runtime API Reference</h1>
+<p>
+  <a href="https://code.dlang.org/packages/wasmer">
+    <img src="https://img.shields.io/dub/v/wasmer.svg" alt="DUB Package">
+  </a>
+  <a target="_blank" href="https://opensource.org/licenses/MIT">
+    <img src="https://img.shields.io/badge/license%2dMIT%2dblue" alt="MIT License">
+  </a>
+  <a target="_blank" rel="noopener noreferrer" href="https://github.com/chances/wasmer-d/actions">
+    <img src="https://github.com/chances/wasmer-d/workflows/wasmer-d%20CI/badge.svg?branch=master" alt="wasmer-d CI">
+  </a>
+  <a href="https://codecov.io/gh/chances/wasmer-d">
+    <img src="https://codecov.io/gh/chances/wasmer-d/branch/master/graph/badge.svg?token=U6BqigvJI6" alt="codecov Coverage Report"/>
+  </a>
+</p>
+<p>An idiomatic D wrapper of the <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime</a>.</p>
+<h2 id="Usage">Usage</h2>
+<pre class="json">
+"dependencies": {
+  "wasmer": "0.1.0-alpha.1"
+}
+</pre>
+<p>See the <a href="https://chances.github.io/wasmer-d">API Reference</a> and the official <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime C API</a> documentation.</p>
+<!-- <h2>Acknowledgements</h2> -->
+<h2>Modules</h2>
+			<table>
+				<col class="caption"/>
+				<tr>
+					<th>Module</th><th>Description</th>
+				</tr>
+			</table>
+			<footer>
+<div style="display: flex; justify-content: space-between; margin-top: 2em;">
+  <a href="https://github.com/chances/wasmer-d#readme">GitHub</a>
+  <span class="faint" style="float: right;">Generated using <a href="https://code.dlang.org/packages/ddox">DDOX</a></span>
+</div>
+			</footer>
+		</div>
+	</body>
+</html>
