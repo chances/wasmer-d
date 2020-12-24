@@ -71,3 +71,9 @@ clean:
 	rm -rf `find docs -name '*.html'`
 	rm -f -- *.lst
 .PHONY: clean
+
+clean-docs:
+	rm -f docs.json
+	rm -f docs/sitemap.xml docs/file_hashes.json
+	rm -rf `find docs -name '*.html'`
+.PHONY: clean-docs
