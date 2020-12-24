@@ -43,10 +43,10 @@ PACKAGE_VERSION := 0.1.0-alpha.1
 docs/sitemap.xml: $(SOURCES)
 	dub build -b ddox
 	@echo "Performing cosmetic changes..."
+	# Page Titles & Favicon
+	@sed -i "s/<\/title>/ - xs-d<\/title><link rel=\"shortcut icon\" href=\"https:\/\/github.com\/WebAssembly\/web-assembly-logo\/raw\/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a\/dist\/icon\/web-assembly-icon.svg\">/" `find docs -name '*.html'`
 	# Navigation Sidebar
 	@sed -i -e "/<nav id=\"main-nav\">/r views/nav.html" -e "/<nav id=\"main-nav\">/d" `find docs -name '*.html'`
-	# Page Titles
-	@sed -i "s/<\/title>/ - xs-d<\/title>/" `find docs -name '*.html'`
 	# Index
 	@sed -i "s/API documentation/API Reference/g" docs/index.html
 	@sed -i -e "/<h1>API Reference<\/h1>/r views/index.html" -e "/<h1>API Reference<\/h1>/d" docs/index.html
