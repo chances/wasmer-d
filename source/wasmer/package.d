@@ -266,7 +266,6 @@ class Value : Handle {
     this.value = new wasm_val_t;
     this.value.of.i32 = value;
     borrowed = false;
-    // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(long value) {
@@ -274,7 +273,6 @@ class Value : Handle {
     this.value = new wasm_val_t;
     this.value.of.i64 = value;
     borrowed = false;
-    // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(float value) {
@@ -282,7 +280,6 @@ class Value : Handle {
     this.value = new wasm_val_t;
     this.value.of.f32 = value;
     borrowed = false;
-    // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(double value) {
@@ -290,7 +287,6 @@ class Value : Handle {
     this.value = new wasm_val_t;
     this.value.of.f64 = value;
     borrowed = false;
-    // wasm_val_init_ptr(this.value, &value);
   }
   private this(wasm_val_t value) {
     this.value = new wasm_val_t(value.kind, value.of);
