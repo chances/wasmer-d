@@ -352,6 +352,11 @@ class Function : Handle {
     return func;
   }
 
+  ///
+  Extern asExtern() @property const {
+    return new Extern(wasm_func_as_extern(func));
+  }
+
   /// Params:
   /// results=Zero or more <a href="https://github.com/WebAssembly/multi-value/blob/master/proposals/multi-value/Overview.md">return values</a>
   /// Returns: Whether the function ran to completion without hitting a trap.
