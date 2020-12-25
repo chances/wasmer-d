@@ -13,6 +13,10 @@ import std.conv : to;
 
 public import wasmer.bindings;
 
+private extern(C) void finalizeHostInfo(T)(void* data) if (is(T == class)) {
+  destroy(this.hostInfo!T);
+}
+
 ///
 interface Handle {
   bool valid() @property const;
@@ -129,10 +133,6 @@ class Module : Handle {
     } else {
       wasm_module_set_host_info(handle, &value);
     }
-  }
-
-  private static extern(C) void finalizeHostInfo(T)(void* data) if (is(T == class)) {
-    destroy(this.hostInfo!T);
   }
 }
 
@@ -390,4 +390,49 @@ unittest {
   destroy(module_);
   destroy(store);
   destroy(engine);
+}
+
+///
+class Trap : Handle {
+  private wasm_trap_t* trap;
+
+  ///
+  this(Store store, string message = "") {
+    import std.string : toStringz;
+
+    trap = wasm_trap_new(cast(wasm_store_t*) store.handle, null);
+    if (message.length) {
+      wasm_byte_vec_t stringVec;
+      wasm_byte_vec_new(&stringVec, message.length, message.toStringz);
+      wasm_trap_message(trap, &stringVec);
+      wasm_byte_vec_delete(&stringVec);
+    }
+  }
+  ~this() {
+    if (valid) wasm_trap_delete(trap);
+    trap = null;
+  }
+
+  /// Whether this managed handle to a `wasm_trap_t` is valid.
+  bool valid() @property const {
+    return trap !is null;
+  }
+
+  ///
+  const(wasm_trap_t*) handle() @property const {
+    return trap;
+  }
+
+  ///
+  T hostInfo(T)() @property const {
+    return cast(T) wasm_trap_get_host_info(handle);
+  }
+  ///
+  void hostInfo(T)(ref T value) @property {
+    static if (is(T == class)) {
+      wasm_trap_set_host_info_with_finalizer(handle, &value, &finalizeHostInfo!T);
+    } else {
+      wasm_trap_set_host_info(handle, &value);
+    }
+  }
 }
