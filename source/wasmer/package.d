@@ -382,9 +382,8 @@ unittest {
 
   assert(sumFunc.valid, "Failed to get the `sum` function!");
 
-  auto args = [new Value(3), new Value(4)];
   Value[] results;
-  assert(sumFunc.call(args, results), "Error calling the `sum` function!");
+  assert(sumFunc.call([new Value(3), new Value(4)], results), "Error calling the `sum` function!");
   assert(results.length == 1 && results[0].value.of.i32 == 7);
 
   destroy(instance);
