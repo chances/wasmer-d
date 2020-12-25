@@ -354,7 +354,7 @@ class Function : Handle {
 
   ///
   Extern asExtern() @property const {
-    return new Extern(wasm_func_as_extern(func));
+    return new Extern(wasm_func_as_extern(cast(wasm_func_t*) func));
   }
 
   /// Params:
