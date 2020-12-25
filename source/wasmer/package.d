@@ -38,6 +38,10 @@ final class Engine : Handle {
   }
 }
 
+unittest {
+  assert(new Engine().valid);
+}
+
 /// All runtime objects are tied to a specific store.
 ///
 /// Multiple stores can be created, but their objects cannot interact. Every store and its objects must only be accessed in a single thread.
@@ -67,17 +71,32 @@ class Store : Handle {
   }
 }
 
+unittest {
+  const store = new Store(new Engine());
+  assert(store.valid);
+  destroy(store);
+}
+
 /// A WebAssembly module.
 class Module : Handle {
   private wasm_module_t* module_;
 
   ///
   this(Store store, ubyte[] wasmBytes) {
-    wasm_byte_vec_t* bytes;
-    wasm_byte_vec_new_uninitialized(bytes, wasmBytes.length);
-    bytes.data = cast(char*) wasmBytes.ptr;
+    wasm_byte_vec_t bytes;
+    wasm_byte_vec_new(&bytes, wasmBytes.length, cast(char*) wasmBytes.ptr);
 
-    module_ = wasm_module_new(cast(wasm_store_t*) store.handle, bytes);
+    module_ = wasm_module_new(cast(wasm_store_t*) store.handle, &bytes);
+    wasm_byte_vec_delete(&bytes);
+  }
+
+  /// Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
+  static Module from(Store store, string source) {
+    wasm_byte_vec_t wat;
+    wasm_byte_vec_new(&wat, source.length, source.ptr);
+    wasm_byte_vec_t wasmBytes;
+    wat2wasm(&wat, &wasmBytes);
+    return new Module(store, cast(ubyte[]) wasmBytes.data[0 .. wasmBytes.size]);
   }
 
   /// Whether this managed handle to a `wasm_module_t` is valid.
@@ -106,6 +125,24 @@ class Module : Handle {
   private static extern(C) void finalizeHostInfo(T)(void* data) if (is(T == class)) {
     destroy(this.hostInfo!T);
   }
+}
+
+version (unittest) {
+  const string wat_sum_module =
+    "(module\n" ~
+    "  (type $sum_t (func (param i32 i32) (result i32)))\n" ~
+    "  (func $sum_f (type $sum_t) (param $x i32) (param $y i32) (result i32)\n" ~
+    "    local.get $x\n" ~
+    "    local.get $y\n" ~
+    "    i32.add)\n" ~
+    "  (export \"sum\" (func $sum_f)))";
+}
+
+unittest {
+  auto engine = new Engine();
+  auto store = new Store(engine);
+
+  assert(Module.from(store, wat_sum_module).valid, "Error compiling module!");
 }
 
 ///
@@ -144,12 +181,12 @@ class Instance : Handle {
     import std.algorithm : map;
     import std.array : array;
 
-    wasm_extern_vec_t* importObject;
-    wasm_extern_vec_new_uninitialized(importObject, imports.length);
-    importObject.data = cast(wasm_extern_t**) imports.map!(import_ => import_.handle).array.ptr;
+    wasm_extern_vec_t importObject;
+    auto importsVecElements = cast(wasm_extern_t**) imports.map!(import_ => import_.handle).array.ptr;
+    wasm_extern_vec_new(&importObject, imports.length, importsVecElements);
 
     instance = wasm_instance_new(
-      cast(wasm_store_t*) store.handle, cast(wasm_module_t*) module_.handle, importObject, null
+      cast(wasm_store_t*) store.handle, cast(wasm_module_t*) module_.handle, &importObject, null
     );
   }
 
@@ -175,46 +212,69 @@ class Instance : Handle {
   }
 }
 
+unittest {
+  auto engine = new Engine();
+  auto store = new Store(engine);
+  auto module_ = Module.from(store, wat_sum_module);
+  auto instance = new Instance(store, module_);
+
+  assert(module_.valid, "Error compiling module!");
+  assert(instance.valid, "Error instantiating module!");
+  assert(instance.exports.length == 1, "Error accessing exports!");
+}
+
 /// A WebAssembly value reference.
 class Value : Handle {
   private wasm_val_t* value;
-  private wasm_valtype_t* type;
+  // private wasm_valtype_t* type;
   ///
   const wasm_valkind_enum kind;
 
   ///
   this(wasm_valkind_enum kind) {
-    type = wasm_valtype_new(kind);
+    // type = wasm_valtype_new(kind);
     this.kind = kind;
   }
   ///
-  this(ref int value) {
-    this.type = wasm_valtype_new_i32();
+  this(int value) {
+    // this.type = wasm_valtype_new_i32();
     this.kind = wasm_valkind_enum.WASM_I32;
-    wasm_val_init_ptr(this.value, &value);
+    this.value = new wasm_val_t;
+    this.value.of.i32 = value;
+    // wasm_val_init_ptr(this.value, &value);
   }
   ///
-  this(ref long value) {
-    this.type = wasm_valtype_new_i64();
+  this(long value) {
+    // this.type = wasm_valtype_new_i64();
     this.kind = wasm_valkind_enum.WASM_I64;
-    wasm_val_init_ptr(this.value, &value);
+    this.value = new wasm_val_t;
+    this.value.of.i64 = value;
+    // wasm_val_init_ptr(this.value, &value);
   }
   ///
-  this(ref float value) {
-    this.type = wasm_valtype_new_f32();
+  this(float value) {
+    // this.type = wasm_valtype_new_f32();
     this.kind = wasm_valkind_enum.WASM_F32;
-    wasm_val_init_ptr(this.value, &value);
+    this.value = new wasm_val_t;
+    this.value.of.f32 = value;
+    // wasm_val_init_ptr(this.value, &value);
   }
   ///
-  this(ref double value) {
-    this.type = wasm_valtype_new_f64();
+  this(double value) {
+    // this.type = wasm_valtype_new_f64();
     this.kind = wasm_valkind_enum.WASM_F64;
-    wasm_val_init_ptr(this.value, &value);
+    this.value = new wasm_val_t;
+    this.value.of.f64 = value;
+    // wasm_val_init_ptr(this.value, &value);
   }
   private this(wasm_val_t* value) {
     this.value = value;
-    this.type = wasm_valtype_new(value.kind);
+    // this.type = wasm_valtype_new(value.kind);
     this.kind = value.kind.to!wasm_valkind_enum;
+  }
+  ~this() {
+    // if (type !is null) wasm_valtype_delete(type);
+    if (valid) wasm_val_delete(value);
   }
 
   ///
