@@ -6,14 +6,10 @@ LIBS_PATH := lib
 .DEFAULT_GOAL := docs
 all: docs
 
-wasmer: $(WASMER_DIR)/lib/libwasmer.so
+wasmer: $(WASMER_DIR)/lib/libwasmer.a
 	@mkdir -p lib
-	@cp $(WASMER_DIR)/lib/libwasmer.so lib/.
+	@cp $(WASMER_DIR)/lib/libwasmer.a lib/.
 .PHONY : wasmer
-wasmer-release: $(WASMER_DIR)/lib/libwasmer.so
-	@mkdir -p lib
-	@cp $(WASMER_DIR)/lib/libwasmer.so lib/.
-.PHONY : wasmer-release
 
 source/wasmer/bindings/package.d:
 	dub run dpp -- --preprocess-only --no-sys-headers --ignore-macros --include-path "/usr/lib/llvm-6.0/lib/clang/6.0.0/include" --include-path "$(WASMER_DIR)/include" source/wasmer/bindings/wasmer.dpp

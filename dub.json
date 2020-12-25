@@ -27,19 +27,6 @@
     {
       "name": "static",
       "targetType": "staticLibrary"
-    },
-    {
-      "name": "release",
-      "preBuildCommands": [
-        "make wasmer-release"
-      ]
-    },
-    {
-      "name": "static-release",
-      "targetType": "staticLibrary",
-      "preBuildCommands": [
-        "make wasmer-release"
-      ]
     }
   ]
 }
