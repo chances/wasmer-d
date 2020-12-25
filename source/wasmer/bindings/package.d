@@ -200,7 +200,7 @@ extern(C)
     void wasm_store_delete(wasm_store_t*) @nogc nothrow;
     wasm_store_t* wasm_store_new(wasm_engine_t*) @nogc nothrow;
     alias wasm_mutability_t = ubyte;
-    enum wasm_mutability_enum
+    enum wasm_mutability_enum : ubyte
     {
         WASM_CONST = 0,
         WASM_VAR = 1,
@@ -329,7 +329,7 @@ extern(C)
     struct wasm_externtype_t;
     void wasm_externtype_vec_new_empty(wasm_externtype_vec_t*) @nogc nothrow;
     alias wasm_externkind_t = ubyte;
-    enum wasm_externkind_enum
+    enum wasm_externkind_enum : ubyte
     {
         WASM_EXTERN_FUNC = 0,
         WASM_EXTERN_GLOBAL = 1,

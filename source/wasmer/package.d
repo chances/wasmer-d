@@ -157,9 +157,12 @@ unittest {
 ///
 class Extern : Handle {
   private wasm_extern_t* extern_;
+  ///
+  const wasm_externkind_enum kind;
 
   private this(wasm_extern_t* extern_) {
     this.extern_ = extern_;
+    kind = wasm_extern_kind(extern_).to!wasm_externkind_enum;
   }
   ~this() {
     if (valid) wasm_extern_delete(extern_);
@@ -235,6 +238,7 @@ unittest {
   assert(module_.valid, "Error compiling module!");
   assert(instance.valid, "Error instantiating module!");
   assert(instance.exports.length == 1, "Error accessing exports!");
+  assert(instance.exports[0].kind == wasm_externkind_enum.WASM_EXTERN_FUNC);
 
   destroy(instance);
   destroy(module_);
@@ -242,7 +246,7 @@ unittest {
   destroy(engine);
 }
 
-/// A WebAssembly value reference.
+/// A WebAssembly value.
 class Value : Handle {
   private wasm_val_t* value;
   private const bool borrowed;
