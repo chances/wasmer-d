@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Function Instance.this - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
+		<title>Function Function.this - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
 		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
 		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
@@ -72,7 +72,8 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Function Instance.this</h1><p></p>
+			<h1>Function Function.this</h1><p>Instantiate a D function to be called from WASM code.
+</p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
@@ -81,9 +82,23 @@ $('#symbolSearchPane').show();</script>
 			<br/>
 			&nbsp;&nbsp;<a href="../wasmer/Store.html"><span class="typ">Store</span></a> <span class="pln">store</span><span class="pun">,</span>
 			<br/>
-			&nbsp;&nbsp;<a href="../wasmer/Module.html"><span class="typ">Module</span></a> <span class="pln">module_</span><span class="pun">,</span>
+			&nbsp;&nbsp;<span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_functype_t</span><span class="pun">*</span> <span class="pln">type</span><span class="pun">,</span>
 			<br/>
-			&nbsp;&nbsp;<a href="../wasmer/Extern.html"><span class="typ">Extern</span></a><span class="pun">[]</span> <span class="pln">imports</span> <span class="pun">=</span> <span class="pun">[]</span>
+			&nbsp;&nbsp;<span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span> <span class="pln">callback</span>
+			<br/>
+			<span class="pun">)</span><span class="pun">;</span>
+			<br/>
+			<br/>
+			<span class="pln">this</span>
+			<span class="pun">(</span>
+			<br/>
+			&nbsp;&nbsp;<a href="../wasmer/Store.html"><span class="typ">Store</span></a> <span class="pln">store</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_functype_t</span><span class="pun">*</span> <span class="pln">type</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="typ">void</span><span class="pun">*</span><span class="pun">, </span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span> <span class="pln">callback</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="typ">void</span><span class="pun">*</span> <span class="pln">env</span>
 			<br/>
 			<span class="pun">)</span><span class="pun">;</span>
 					</div>

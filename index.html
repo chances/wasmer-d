@@ -51,10 +51,23 @@
 $('#symbolSearchPane').show();</script>
 			</div>
 			<ul class="tree-view">
-				<li>
-					<div class="module ">
+				<li class="tree-view ">
+					<div class="package ">
 						<a href="./wasmer.html">wasmer</a>
 					</div>
+			<ul class="tree-view">
+				<li class="tree-view collapsed">
+					<div class="package ">bindings
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module ">
+						<a href="./wasmer/bindings/funcs.html">funcs</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
 				</li>
 			</ul>
 		</nav>
@@ -178,6 +191,15 @@ assert(results.length == 1 && results[0].value.of.i32 == 7);
 				<tr>
 					<th>Module</th><th>Description</th>
 				</tr>
+			<tr>
+				<td>
+					<a href="./wasmer/bindings/funcs.html">wasmer.bindings.funcs</a>
+				</td>
+				<td>
+					Convenience functions
+
+				</td>
+			</tr>
 			<tr>
 				<td>
 					<a href="./wasmer.html">wasmer</a>

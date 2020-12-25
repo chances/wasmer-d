@@ -51,10 +51,23 @@
 $('#symbolSearchPane').show();</script>
 			</div>
 			<ul class="tree-view">
-				<li>
-					<div class="module selected">
+				<li class="tree-view ">
+					<div class="package selected">
 						<a href="../wasmer.html">wasmer</a>
 					</div>
+			<ul class="tree-view">
+				<li class="tree-view collapsed">
+					<div class="package ">bindings
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module ">
+						<a href="../wasmer/bindings/funcs.html">funcs</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
 				</li>
 			</ul>
 		</nav>
@@ -71,11 +84,35 @@ $('#symbolSearchPane').show();</script>
 				</code>
 			</div>
 			
+			<section><h2>Constructors</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Function.this.html" class="public">
+								<code>this</code>
+							</a>
+							<span class="tableEntryAnnotation">(store, type, callback)</span>
+						</td>
+						<td>Instantiate a D function to be called from WASM code.
+</td>
+					</tr>
+				</table>
+			</section>
 			<section><h2>Properties</h2>
 				<table>
 					<col class="caption"/>
 					<tr>
 						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Function.asExtern.html" class="public property"><code>asExtern</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><a href="../wasmer/Extern.html"><span class="typ">Extern</span></a></code></td><td></td>
 					</tr>
 					<tr>
 						<td>

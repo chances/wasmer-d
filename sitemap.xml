@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>http://127.0.0.1/index.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/bindings/funcs.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Callback.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/CallbackWithEnv.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.this.html</loc></url>
@@ -9,12 +12,16 @@
 <url><loc>http://127.0.0.1/wasmer/Extern.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.handle.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Extern.kind.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.asExtern.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.call.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.call.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.handle.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Instance.html</loc></url>

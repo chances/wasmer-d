@@ -51,10 +51,23 @@
 $('#symbolSearchPane').show();</script>
 			</div>
 			<ul class="tree-view">
-				<li>
-					<div class="module selected">
+				<li class="tree-view ">
+					<div class="package selected">
 						<a href="../wasmer.html">wasmer</a>
 					</div>
+			<ul class="tree-view">
+				<li class="tree-view collapsed">
+					<div class="package ">bindings
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module ">
+						<a href="../wasmer/bindings/funcs.html">funcs</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
 				</li>
 			</ul>
 		</nav>
@@ -70,6 +83,20 @@ $('#symbolSearchPane').show();</script>
 				</code>
 			</div>
 			
+			<section><h2>Fields</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Extern.kind.html" class="public"><code>kind</code></a>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_externkind_enum</span><span class="pun">)</span></code></td><td></td>
+					</tr>
+				</table>
+			</section>
 			<section><h2>Properties</h2>
 				<table>
 					<col class="caption"/>

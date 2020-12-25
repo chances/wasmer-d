@@ -51,10 +51,23 @@
 $('#symbolSearchPane').show();</script>
 			</div>
 			<ul class="tree-view">
-				<li>
-					<div class="module selected">
+				<li class="tree-view ">
+					<div class="package selected">
 						<a href="./wasmer.html">wasmer</a>
 					</div>
+			<ul class="tree-view">
+				<li class="tree-view collapsed">
+					<div class="package ">bindings
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module ">
+						<a href="./wasmer/bindings/funcs.html">funcs</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
 				</li>
 			</ul>
 		</nav>
@@ -151,7 +164,40 @@ $('#symbolSearchPane').show();</script>
 								<a id="Value" class="public" href="./wasmer/Value.html">Value</a>
 							</code>
 						</td>
-						<td>A WebAssembly value reference.
+						<td>A WebAssembly value.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Aliases</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a id="Callback" class="public" href="./wasmer/Callback.html">
+								<code>Callback</code>
+							</a>
+						</td>
+						<td>
+							<code class="prettyprint lang-d"><span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span></code>
+						</td>
+						<td>A function to be called from WASM code.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="CallbackWithEnv" class="public" href="./wasmer/CallbackWithEnv.html">
+								<code>CallbackWithEnv</code>
+							</a>
+						</td>
+						<td>
+							<code class="prettyprint lang-d"><span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="typ">void</span><span class="pun">*</span><span class="pun">, </span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span></code>
+						</td>
+						<td>A function to be called from WASM code. Includes an environment variable.
 </td>
 					</tr>
 				</table>
