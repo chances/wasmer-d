@@ -26,6 +26,9 @@ final class Engine : Handle {
   this() {
     engine = wasm_engine_new();
   }
+  ~this() {
+    if (valid) wasm_engine_delete(engine);
+  }
 
   /// Whether this managed handle to a `wasm_engine_t` is valid.
   bool valid() @property const {
@@ -88,6 +91,9 @@ class Module : Handle {
 
     module_ = wasm_module_new(cast(wasm_store_t*) store.handle, &bytes);
     wasm_byte_vec_delete(&bytes);
+  }
+  ~this() {
+    if (valid) wasm_module_delete(module_);
   }
 
   /// Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
@@ -221,6 +227,11 @@ unittest {
   assert(module_.valid, "Error compiling module!");
   assert(instance.valid, "Error instantiating module!");
   assert(instance.exports.length == 1, "Error accessing exports!");
+
+  destroy(instance);
+  destroy(module_);
+  destroy(store);
+  destroy(engine);
 }
 
 /// A WebAssembly value reference.
@@ -316,7 +327,16 @@ class Function : Handle {
     return func;
   }
 
-  ///
+  /// Params:
+  /// results=Zero or more <a href="https://github.com/WebAssembly/multi-value/blob/master/proposals/multi-value/Overview.md">return values</a>
+  /// Returns: Whether the function ran to completion without hitting a trap.
+  bool call(out Value[] results) {
+    return call([], results);
+  }
+  /// Params:
+  /// arguments=
+  /// results=Zero or more <a href="https://github.com/WebAssembly/multi-value/blob/master/proposals/multi-value/Overview.md">return values</a>
+  /// Returns: Whether the function ran to completion without hitting a trap.
   bool call(Value[] arguments, out Value[] results) {
     import std.algorithm : map;
     import std.array : array;
@@ -335,4 +355,23 @@ class Function : Handle {
 
     return true;
   }
+}
+
+unittest {
+  auto engine = new Engine();
+  auto store = new Store(engine);
+  auto module_ = Module.from(store, wat_sum_module);
+  auto instance = new Instance(store, module_);
+  auto sumFunc = Function.from(instance.exports[0]);
+
+  assert(sumFunc.valid, "Failed to get the `sum` function!");
+
+  // Value[] results;
+  // assert(sumFunc.call([new Value(3), new Value(4)], results), "Error calling the `sum` function!");
+  // assert(results.length == 1 && results[0].value.of.i32 == 7);
+
+  destroy(instance);
+  destroy(module_);
+  destroy(store);
+  destroy(engine);
 }
