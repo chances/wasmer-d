@@ -40,6 +40,12 @@
 <url><loc>http://127.0.0.1/wasmer/Store.handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Store.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Store.valid.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.handle.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.hostInfo.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.hostInfo.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Trap.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.handle.html</loc></url>
