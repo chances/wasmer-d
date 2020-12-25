@@ -28,6 +28,7 @@ final class Engine : Handle {
   }
   ~this() {
     if (valid) wasm_engine_delete(engine);
+    engine = null;
   }
 
   /// Whether this managed handle to a `wasm_engine_t` is valid.
@@ -61,6 +62,7 @@ class Store : Handle {
   }
   ~this() {
     if (valid) wasm_store_delete(store);
+    store = null;
   }
 
   /// Whether this managed handle to a `wasm_store_t` is valid.
@@ -94,6 +96,7 @@ class Module : Handle {
   }
   ~this() {
     if (valid) wasm_module_delete(module_);
+    module_ = null;
   }
 
   /// Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
@@ -160,6 +163,7 @@ class Extern : Handle {
   }
   ~this() {
     if (valid) wasm_extern_delete(extern_);
+    extern_ = null;
   }
 
   ///
@@ -194,6 +198,10 @@ class Instance : Handle {
     instance = wasm_instance_new(
       cast(wasm_store_t*) store.handle, cast(wasm_module_t*) module_.handle, &importObject, null
     );
+  }
+  ~this() {
+    if (valid) wasm_instance_delete(instance);
+    instance = null;
   }
 
   /// Whether this managed handle to a `wasm_instance_t` is valid.
@@ -237,59 +245,65 @@ unittest {
 /// A WebAssembly value reference.
 class Value : Handle {
   private wasm_val_t* value;
-  // private wasm_valtype_t* type;
+  private const bool borrowed;
   ///
   const wasm_valkind_enum kind;
 
   ///
   this(wasm_valkind_enum kind) {
-    // type = wasm_valtype_new(kind);
     this.kind = kind;
+    this.value = new wasm_val_t(kind);
+    borrowed = false;
   }
   ///
   this(int value) {
-    // this.type = wasm_valtype_new_i32();
     this.kind = wasm_valkind_enum.WASM_I32;
     this.value = new wasm_val_t;
     this.value.of.i32 = value;
+    borrowed = false;
     // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(long value) {
-    // this.type = wasm_valtype_new_i64();
     this.kind = wasm_valkind_enum.WASM_I64;
     this.value = new wasm_val_t;
     this.value.of.i64 = value;
+    borrowed = false;
     // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(float value) {
-    // this.type = wasm_valtype_new_f32();
     this.kind = wasm_valkind_enum.WASM_F32;
     this.value = new wasm_val_t;
     this.value.of.f32 = value;
+    borrowed = false;
     // wasm_val_init_ptr(this.value, &value);
   }
   ///
   this(double value) {
-    // this.type = wasm_valtype_new_f64();
     this.kind = wasm_valkind_enum.WASM_F64;
     this.value = new wasm_val_t;
     this.value.of.f64 = value;
+    borrowed = false;
     // wasm_val_init_ptr(this.value, &value);
+  }
+  private this(wasm_val_t value) {
+    this.value = new wasm_val_t(value.kind, value.of);
+    this.kind = value.kind.to!wasm_valkind_enum;
+    borrowed = false;
   }
   private this(wasm_val_t* value) {
     this.value = value;
-    // this.type = wasm_valtype_new(value.kind);
     this.kind = value.kind.to!wasm_valkind_enum;
+    borrowed = true;
   }
   ~this() {
-    // if (type !is null) wasm_valtype_delete(type);
-    if (valid) wasm_val_delete(value);
+    if (valid && borrowed) wasm_val_delete(value);
+    value = null;
   }
 
   ///
-  static Value from(wasm_val_t* value) {
+  static Value from(wasm_val_t value) {
     return new Value(value);
   }
 
@@ -341,17 +355,19 @@ class Function : Handle {
     import std.algorithm : map;
     import std.array : array;
 
-    wasm_val_vec_t* args;
-    wasm_val_vec_new(args, arguments.length, arguments.map!(param => *param.handle).array.ptr);
+    wasm_val_vec_t args;
+    wasm_val_vec_new(&args, arguments.length, arguments.map!(param => *param.handle).array.ptr);
 
-    wasm_val_vec_t* resultsVec;
-    if (wasm_func_call(func, args, resultsVec) !is null) {
-      return false;
-    }
+    wasm_val_vec_t resultsVec;
+    wasm_val_vec_new_uninitialized(&resultsVec, 1);
+    auto funcTrapped = wasm_func_call(func, &args, &resultsVec) !is null;
+    wasm_val_vec_delete(&args);
+    if (funcTrapped) return false;
     results = new Value[resultsVec.size];
     for (auto i = 0; i < resultsVec.size; i += 1) {
-      results[i] = Value.from(&resultsVec.data[i]);
+      results[i] = Value.from(resultsVec.data[i]);
     }
+    wasm_val_vec_delete(&resultsVec);
 
     return true;
   }
@@ -366,9 +382,10 @@ unittest {
 
   assert(sumFunc.valid, "Failed to get the `sum` function!");
 
-  // Value[] results;
-  // assert(sumFunc.call([new Value(3), new Value(4)], results), "Error calling the `sum` function!");
-  // assert(results.length == 1 && results[0].value.of.i32 == 7);
+  auto args = [new Value(3), new Value(4)];
+  Value[] results;
+  assert(sumFunc.call(args, results), "Error calling the `sum` function!");
+  assert(results.length == 1 && results[0].value.of.i32 == 7);
 
   destroy(instance);
   destroy(module_);
