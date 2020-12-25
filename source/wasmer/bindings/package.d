@@ -200,7 +200,7 @@ extern(C)
     void wasm_store_delete(wasm_store_t*) @nogc nothrow;
     wasm_store_t* wasm_store_new(wasm_engine_t*) @nogc nothrow;
     alias wasm_mutability_t = ubyte;
-    enum wasm_mutability_enum
+    enum wasm_mutability_enum : ubyte
     {
         WASM_CONST = 0,
         WASM_VAR = 1,
@@ -329,7 +329,7 @@ extern(C)
     struct wasm_externtype_t;
     void wasm_externtype_vec_new_empty(wasm_externtype_vec_t*) @nogc nothrow;
     alias wasm_externkind_t = ubyte;
-    enum wasm_externkind_enum
+    enum wasm_externkind_enum : ubyte
     {
         WASM_EXTERN_FUNC = 0,
         WASM_EXTERN_GLOBAL = 1,
@@ -612,26 +612,6 @@ extern(C)
     const(wasm_instance_t)* wasm_ref_as_instance_const(const(wasm_ref_t)*) @nogc nothrow;
     wasm_instance_t* wasm_instance_new(wasm_store_t*, const(wasm_module_t)*, const(wasm_extern_vec_t)*, wasm_trap_t**) @nogc nothrow;
     void wasm_instance_exports(const(wasm_instance_t)*, wasm_extern_vec_t*) @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_i32() @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_i64() @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_f32() @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_f64() @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_anyref() @nogc nothrow;
-    static wasm_valtype_t* wasm_valtype_new_funcref() @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_0_0() @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_1_0(wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_2_0(wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_3_0(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_0_1(wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_1_1(wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_2_1(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_3_1(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_0_2(wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_1_2(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_2_2(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static wasm_functype_t* wasm_functype_new_3_2(wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*, wasm_valtype_t*) @nogc nothrow;
-    static void wasm_val_init_ptr(wasm_val_t*, void*) @nogc nothrow;
-    static void* wasm_val_ptr(const(wasm_val_t)*) @nogc nothrow;
     alias __off64_t = c_long;
     alias __off_t = c_long;
     alias __nlink_t = c_ulong;
