@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Module wasmer - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
+		<link rel="stylesheet" type="text/css" href="./styles/ddox.css"/>
+		<link rel="stylesheet" href="./prettify/prettify.css" type="text/css"/>
+		<script type="text/javascript" src="./scripts/jquery.js">/**/</script><script type="text/javascript" src="./scripts/ddox.js">/**/</script>
+	</head>
+	<body onload="setupDdox();">
+<style>
+#main-nav > img:first-child {
+  margin-bottom: 1.25em;
+}
+#main-nav > h1 > span {
+  padding-bottom: 0.25em;
+}
+#logo {
+  margin-right: 0.5rem;
+  max-width: 4rem;
+}
+</style>
+<nav id="main-nav">
+  <img src="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg" alt="" width="64px" height="64px" aria-hidden="true" />
+  <h1 style="max-width: 9em;">
+    <span>Wasmer Runtime</span>
+    <div>
+      D Bindings
+    </div>
+  </h1>
+  <ul style="list-style: none; padding: 0;">
+    <li>
+      <a href="https://chances.github.io/wasmer-d">API Reference</a>
+    </li>
+    <li>
+      <a href="https://code.dlang.org/packages/wasmer">Download</a>
+    </li>
+    <li>
+      <a href="https://github.com/chances/wasmer-d#readme">Open Source on GitHub</a>
+    </li>
+  </ul>
+  <h2>API Reference</h2>
+			<noscript>
+				<p style="color: red">The search functionality needs JavaScript enabled</p>
+			</noscript>
+			<div id="symbolSearchPane" style="display: none">
+				<form action="#" method="GET">
+					<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/>
+				</form>
+				<ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="./symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "./";
+$('#symbolSearchPane').show();</script>
+			</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module selected">
+						<a href="./wasmer.html">wasmer</a>
+					</div>
+				</li>
+			</ul>
+		</nav>
+		<div id="main-contents">
+			<h1>Module wasmer</h1><p>Wasmer Engine API
+</p><section><p>An idiomatic D wrapper of the <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime</a> providing an implementation of the <a href="https://github.com/WebAssembly/wasm-c-api#readme">WebAssembly C API</a>.
+</p>
+</section>
+
+			<section><section><h2>See Also</h2>
+<p>The official <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime C API</a> documentation.
+</p>
+</section>
+</section>
+			<section>
+				<h2>Interfaces</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Handle" class="public" href="./wasmer/Handle.html">Handle</a>
+							</code>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Classes</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Engine" class="public" href="./wasmer/Engine.html">Engine</a>
+							</code>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Extern" class="public" href="./wasmer/Extern.html">Extern</a>
+							</code>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Function" class="public" href="./wasmer/Function.html">Function</a>
+							</code>
+						</td>
+						<td>A WebAssembly function reference.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Instance" class="public" href="./wasmer/Instance.html">Instance</a>
+							</code>
+						</td>
+						<td>A WebAssembly virtual machine instance.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Module" class="public" href="./wasmer/Module.html">Module</a>
+							</code>
+						</td>
+						<td>A WebAssembly module.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Store" class="public" href="./wasmer/Store.html">Store</a>
+							</code>
+						</td>
+						<td>All runtime objects are tied to a specific store.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Value" class="public" href="./wasmer/Value.html">Value</a>
+							</code>
+						</td>
+						<td>A WebAssembly value reference.
+</td>
+					</tr>
+				</table>
+			</section>
+			<footer>
+				<table class="license-info">
+					<tr>
+						<th>Authors</th>
+						<td>
+							<p>Chance Snow
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>Copyright</th>
+						<td>
+							<p>Copyright © 2020 Chance Snow. All rights reserved.
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>License</th>
+						<td>
+							<p><a href="https://opensource.org/licenses/MIT">MIT License</a>
+</p>
+
+						</td>
+					</tr>
+				</table>
+<div style="display: flex; justify-content: space-between; margin-top: 2em;">
+  <a href="https://github.com/chances/wasmer-d#readme">GitHub</a>
+  <span class="faint" style="float: right;">Generated using <a href="https://code.dlang.org/packages/ddox">DDOX</a></span>
+</div>
+			</footer>
+		</div>
+	</body>
+</html>
