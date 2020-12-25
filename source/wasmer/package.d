@@ -360,7 +360,7 @@ class Function : Handle {
 
     wasm_val_vec_t resultsVec;
     wasm_val_vec_new_uninitialized(&resultsVec, 1);
-    auto funcTrapped = wasm_func_call(func, &args, &resultsVec) !is null;
+    const funcTrapped = wasm_func_call(func, &args, &resultsVec) !is null;
     wasm_val_vec_delete(&args);
     if (funcTrapped) return false;
     results = new Value[resultsVec.size];
