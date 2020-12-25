@@ -35,7 +35,7 @@ test:
 cover: $(SOURCES)
 	env LD_LIBRARY_PATH=$(WASMER_DIR)/lib dub test --parallel --coverage
 
-PACKAGE_VERSION := 0.1.0-alpha.1
+PACKAGE_VERSION := 0.1.0-alpha.2
 docs/sitemap.xml: $(SOURCES)
 	dub build -b ddox
 	@echo "Performing cosmetic changes..."
