@@ -12,6 +12,7 @@ module wasmer;
 import std.conv : to;
 
 public import wasmer.bindings;
+public import wasmer.bindings.funcs;
 
 ///
 interface Handle {
