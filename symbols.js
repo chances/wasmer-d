@@ -20,6 +20,7 @@ var symbols = [
 {name: 'wasmer.Instance.this', kind: "functiondeclaration", path: './wasmer/Instance.this.html', attributes: []},
 {name: 'wasmer.Instance.valid', kind: "functiondeclaration", path: './wasmer/Instance.valid.html', attributes: ["property", "const"]},
 {name: 'wasmer.Module', kind: "classdeclaration", path: './wasmer/Module.html', attributes: []},
+{name: 'wasmer.Module.from', kind: "functiondeclaration", path: './wasmer/Module.from.html', attributes: ["static"]},
 {name: 'wasmer.Module.handle', kind: "functiondeclaration", path: './wasmer/Module.handle.html', attributes: ["property", "const"]},
 {name: 'wasmer.Module.hostInfo', kind: "functiondeclaration", path: './wasmer/Module.hostInfo.html', attributes: ["const", "property"]},
 {name: 'wasmer.Module.this', kind: "functiondeclaration", path: './wasmer/Module.this.html', attributes: []},

@@ -21,6 +21,7 @@
 <url><loc>http://127.0.0.1/wasmer/Instance.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Instance.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Module.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
