@@ -231,7 +231,7 @@ extern(C)
     void wasm_valtype_delete(wasm_valtype_t*) @nogc nothrow;
     struct wasm_valtype_t;
     alias wasm_valkind_t = ubyte;
-    enum wasm_valkind_enum
+    enum wasm_valkind_enum : ubyte
     {
         WASM_I32 = 0,
         WASM_I64 = 1,
