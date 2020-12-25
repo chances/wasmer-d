@@ -322,10 +322,17 @@ class Value : Handle {
   }
 }
 
+/// A function to be called from WASM code.
+extern(C) alias Callback = wasm_trap_t* function(const wasm_val_vec_t* arguments, wasm_val_vec_t* results);
+
 /// A WebAssembly function reference.
 class Function : Handle {
   private wasm_func_t* func;
 
+  /// Instantiate a D function to be called from WASM code.
+  this(Store store, wasm_functype_t* type, Callback callback) {
+    func = wasm_func_new(cast(wasm_store_t*) store.handle, type, callback);
+  }
   private this(wasm_func_t* func) {
     this.func = func;
   }
