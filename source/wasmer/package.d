@@ -325,6 +325,10 @@ class Value : Handle {
 
 /// A function to be called from WASM code.
 extern(C) alias Callback = wasm_trap_t* function(const wasm_val_vec_t* arguments, wasm_val_vec_t* results);
+/// A function to be called from WASM code. Includes an environment variable.
+extern(C) alias CallbackWithEnv = wasm_trap_t* function(
+  void* env, const wasm_val_vec_t* arguments, wasm_val_vec_t* results
+);
 
 /// A WebAssembly function reference.
 class Function : Handle {
@@ -333,6 +337,10 @@ class Function : Handle {
   /// Instantiate a D function to be called from WASM code.
   this(Store store, wasm_functype_t* type, Callback callback) {
     func = wasm_func_new(cast(wasm_store_t*) store.handle, type, callback);
+  }
+  /// ditto
+  this(Store store, wasm_functype_t* type, CallbackWithEnv callback, void* env) {
+    func = wasm_func_new_with_env(cast(wasm_store_t*) store.handle, type, callback, env, null);
   }
   private this(wasm_func_t* func) {
     this.func = func;
@@ -390,21 +398,53 @@ class Function : Handle {
   }
 }
 
+version (unittest) {
+  const string wat_callback_module =
+"(module" ~
+"  (func $print (import \"\" \"print\") (param i32) (result i32))" ~
+"  (func $closure (import \"\" \"closure\") (result i32))" ~
+"  (func (export \"run\") (param $x i32) (param $y i32) (result i32)" ~
+"    (i32.add" ~
+"      (call $print (i32.add (local.get $x) (local.get $y)))" ~
+"      (call $closure)" ~
+"    )" ~
+"  )" ~
+")";
+
+  package extern(C) wasm_trap_t* print(const wasm_val_vec_t* arguments, wasm_val_vec_t* results) {
+    assert(arguments.size == 1 && arguments.data[0].of.i32 == 7);
+    wasm_val_copy(&results.data[0], &arguments.data[0]);
+    return null;
+  }
+
+  package extern(C) wasm_trap_t* closure(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+    int i = *(cast(int*) env);
+
+    results.data[0].kind = WASM_I32;
+    results.data[0].of.i32 = cast(int32_t) i;
+    return null;
+  }
+}
+
 unittest {
   auto engine = new Engine();
   auto store = new Store(engine);
-  auto module_ = Module.from(store, wat_sum_module);
-  auto instance = new Instance(store, module_);
-  auto sumFunc = Function.from(instance.exports[0]);
+  auto module_ = Module.from(store, wat_callback_module);
+  assert(module_.valid, "Error compiling module!");
+  int i = 42;
+  auto imports = [
+    new Function(store, wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32()), &print).asExtern,
+    new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &closure, &i).asExtern
+  ];
+  auto instance = new Instance(store, module_, imports);
+  auto runFunc = Function.from(instance.exports[0]);
 
-  assert(sumFunc.valid, "Failed to get the `sum` function!");
+  assert(runFunc.valid, "Failed to get the `run` function!");
 
   Value[] results;
-  assert(sumFunc.call([new Value(3), new Value(4)], results), "Error calling the `sum` function!");
-  assert(results.length == 1 && results[0].value.of.i32 == 7);
+  assert(runFunc.call([new Value(3), new Value(4)], results), "Error calling the `run` function!");
+  assert(results.length == 1 && results[0].value.of.i32 == 49);
 
   destroy(instance);
   destroy(module_);
-  destroy(store);
-  destroy(engine);
 }
