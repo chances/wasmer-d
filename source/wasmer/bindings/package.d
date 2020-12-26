@@ -187,8 +187,6 @@ extern(C)
     void wasm_byte_vec_new_empty(wasm_byte_vec_t*) @nogc nothrow;
     alias wasm_name_t = wasm_byte_vec_t;
     alias __clock_t = c_long;
-    static void wasm_name_new_from_string(wasm_byte_vec_t*, const(char)*) @nogc nothrow;
-    static void wasm_name_new_from_string_nt(wasm_byte_vec_t*, const(char)*) @nogc nothrow;
     struct wasm_config_t;
     void wasm_config_delete(wasm_config_t*) @nogc nothrow;
     wasm_config_t* wasm_config_new() @nogc nothrow;

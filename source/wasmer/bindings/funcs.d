@@ -7,11 +7,30 @@
 /// License: MIT License
 module wasmer.bindings.funcs;
 
+import core.stdc.string : strlen;
 import std.conv : to;
 
 import wasmer.bindings;
 
 pragma(inline, true):
+
+// Byte vectors
+
+alias wasm_name_new = wasm_byte_vec_new;
+alias wasm_name_new_empty = wasm_byte_vec_new_empty;
+alias wasm_name_new_new_uninitialized = wasm_byte_vec_new_uninitialized;
+alias wasm_name_copy = wasm_byte_vec_copy;
+alias wasm_name_delete = wasm_byte_vec_delete;
+
+static void wasm_name_new_from_string(wasm_name_t* name, const char* s) {
+  wasm_name_new(name, strlen(s), s);
+}
+
+static void wasm_name_new_from_string_nt(wasm_name_t* name, const char* s) {
+  wasm_name_new(name, strlen(s) + 1, s);
+}
+
+alias wasm_name_delete = wasm_byte_vec_delete;
 
 // Value Type construction short-hands
 
