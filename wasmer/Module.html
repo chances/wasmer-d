@@ -129,12 +129,52 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 					<tr>
 						<td>
+							<a href="../wasmer/Module.deserialize.html" class="public">
+								<code>deserialize</code>
+							</a>
+							<span class="tableEntryAnnotation">(store, data)</span>
+						</td>
+						<td>Deserializes a module given the bytes of a previously serialized module.
+</td>
+					</tr>
+					<tr>
+						<td>
 							<a href="../wasmer/Module.from.html" class="public">
 								<code>from</code>
 							</a>
 							<span class="tableEntryAnnotation">(store, source)</span>
 						</td>
 						<td>Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Module.instantiate.html" class="public">
+								<code>instantiate</code>
+							</a>
+							<span class="tableEntryAnnotation">(imports)</span>
+						</td>
+						<td>Creates a new <code class="lang-d"><a href="../wasmer/Instance.html"><span class="typ">Instance</span></a></code> of this module from the given imports, if any.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Module.serialize.html" class="public">
+								<code>serialize</code>
+							</a>
+							<span class="tableEntryAnnotation">()</span>
+						</td>
+						<td>Serializes this module, the result can be saved and later deserialized back into an executable module.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Module.validate.html" class="public">
+								<code>validate</code>
+							</a>
+							<span class="tableEntryAnnotation">(store, data)</span>
+						</td>
+						<td>Validates the given bytes as being a valid WebAssembly module.
 </td>
 					</tr>
 				</table>

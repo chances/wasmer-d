@@ -36,10 +36,14 @@
 <url><loc>http://127.0.0.1/wasmer/Memory.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Memory.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Module.deserialize.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Module.instantiate.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Module.serialize.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Module.validate.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/pageSize.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Store.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Store.engine.html</loc></url>
