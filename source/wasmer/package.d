@@ -159,20 +159,18 @@ unittest {
 class Extern : Handle {
   private wasm_extern_t* extern_;
   ///
+  const string name;
+  ///
   const wasm_externkind_enum kind;
 
-  private this(wasm_extern_t* extern_) {
+  private this(wasm_extern_t* extern_, string name = "") {
     this.extern_ = extern_;
+    this.name = name;
     kind = wasm_extern_kind(extern_).to!wasm_externkind_enum;
   }
   ~this() {
     if (valid) wasm_extern_delete(extern_);
     extern_ = null;
-  }
-
-  ///
-  static Extern from(wasm_extern_t* extern_) {
-    return new Extern(extern_);
   }
 
   /// Whether this managed handle to a `wasm_extern_t` is valid.
@@ -189,6 +187,7 @@ class Extern : Handle {
 /// A WebAssembly virtual machine instance.
 class Instance : Handle {
   private wasm_instance_t* instance;
+  private wasm_exporttype_vec_t exportTypes;
 
   ///
   this(Store store, Module module_, Extern[] imports = []) {
@@ -202,6 +201,9 @@ class Instance : Handle {
     instance = wasm_instance_new(
       cast(wasm_store_t*) store.handle, cast(wasm_module_t*) module_.handle, &importObject, null
     );
+
+    // Get exported types
+    wasm_module_exports(cast(wasm_module_t*) module_.handle, &exportTypes);
   }
   ~this() {
     if (valid) wasm_instance_delete(instance);
@@ -224,7 +226,10 @@ class Instance : Handle {
 
     auto exports = new Extern[exportsVector.size];
     for (auto i = 0; i < exportsVector.size; i++) {
-      exports[i] = Extern.from(exportsVector.data[i]);
+      const nameVec = wasm_exporttype_name(exportTypes.data[i]);
+      const name = cast(string) nameVec.data[0..nameVec.size];
+
+      exports[i] = new Extern(exportsVector.data[i], name.idup);
     }
     return exports;
   }
@@ -240,6 +245,7 @@ unittest {
   assert(instance.valid, "Error instantiating module!");
   assert(instance.exports.length == 1, "Error accessing exports!");
   assert(instance.exports[0].kind == wasm_externkind_enum.WASM_EXTERN_FUNC);
+  assert(instance.exports[0].name == "sum");
 
   destroy(instance);
   destroy(module_);
@@ -435,7 +441,7 @@ unittest {
   auto instance = new Instance(store, module_, imports);
   auto runFunc = Function.from(instance.exports[0]);
 
-  assert(runFunc.valid, "Failed to get the `run` function!");
+  assert(instance.exports[0].name == "run" && runFunc.valid, "Failed to get the `run` function!");
 
   Value[] results;
   assert(runFunc.call([new Value(3), new Value(4)], results), "Error calling the `run` function!");
