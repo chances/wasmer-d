@@ -206,6 +206,12 @@ class Module : Handle!wasm_module_t {
     return new Module(module_);
   }
 
+  /// Validates the given bytes as being a valid WebAssembly module.
+  static bool validate(Store store, ubyte[] data) {
+    wasm_byte_vec_t dataVec = wasm_byte_vec_t(data.length, cast(char*) data.ptr);
+    return wasm_module_validate(store.handle, &dataVec);
+  }
+
   ///
   T hostInfo(T)() @property const {
     return cast(T) wasm_module_get_host_info(handle);
