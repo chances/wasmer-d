@@ -21,10 +21,13 @@ private extern(C) void finalizeHostInfo(T)(void* data) if (is(T == class)) {
 /// Manages a native handle to a Wasmer structure.
 abstract class Handle(T) if (is(T == struct)) {
   private T* handle_;
+  /// Whether this handle was borrowed from the Wasmer runtime. Borrowed handles are not automatically freed in D-land.
+  const bool borrowed;
 
   ///
-  this(T* value) {
+  this(T* value, bool borrowed = false) {
     handle_ = value;
+    this.borrowed = borrowed;
   }
   ~this() {
     handle_ = null;
@@ -246,7 +249,7 @@ unittest {
   destroy(engine);
 }
 
-/// A WebAssembly value.
+/// A WebAssembly value, wrapping an int, long, float, or double.
 class Value : Handle!wasm_val_t {
   private const bool borrowed;
   ///
@@ -361,9 +364,9 @@ class Function : Handle!wasm_func_t {
 
     wasm_val_vec_t resultsVec;
     wasm_val_vec_new_uninitialized(&resultsVec, 1);
-    const funcTrapped = wasm_func_call(handle, &args, &resultsVec) !is null;
+    auto trap = wasm_func_call(handle, &args, &resultsVec);
     wasm_val_vec_delete(&args);
-    if (funcTrapped) return false;
+    if (trap !is null) throw new Exception(new Trap(trap).message);
     results = new Value[resultsVec.size];
     for (auto i = 0; i < resultsVec.size; i += 1) {
       results[i] = Value.from(resultsVec.data[i]);
@@ -428,10 +431,20 @@ unittest {
 ///
 class Trap : Handle!wasm_trap_t {
   ///
+  const string message;
+  ///
+  this(wasm_trap_t* trap) {
+    super(trap, true);
+    wasm_name_t messageVec;
+    wasm_trap_message(trap, &messageVec);
+    this.message = messageVec.data[0..messageVec.size].idup;
+  }
+  ///
   this(Store store, string message = "") {
     import std.string : toStringz;
 
-    super(wasm_trap_new(cast(wasm_store_t*) store.handle, null));
+    super(wasm_trap_new(cast(wasm_store_t*) store.handle, null), );
+    this.message = message;
     if (message.length) {
       wasm_byte_vec_t stringVec;
       wasm_byte_vec_new(&stringVec, message.length, message.toStringz);
@@ -440,7 +453,7 @@ class Trap : Handle!wasm_trap_t {
     }
   }
   ~this() {
-    if (valid) wasm_trap_delete(handle);
+    if (valid && !borrowed) wasm_trap_delete(handle);
   }
 
   ///
@@ -455,4 +468,50 @@ class Trap : Handle!wasm_trap_t {
       wasm_trap_set_host_info(handle, &value);
     }
   }
+}
+
+version (unittest) {
+  const string wat_trap_module =
+    "(module" ~
+    "  (func $callback (import \"\" \"callback\") (result i32))" ~
+    "  (func (export \"callback\") (result i32) (call $callback))" ~
+    "  (func (export \"unreachable\") (result i32) (unreachable) (i32.const 1))" ~
+    ")";
+
+  package extern(C) wasm_trap_t* fail(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+    assert(env !is null);
+    wasm_name_t message;
+    wasm_name_new_from_string_nt(&message, "callback abort"c.ptr);
+    wasm_trap_t* trap = wasm_trap_new(cast(wasm_store_t*) env, &message);
+    wasm_name_delete(&message);
+    return trap;
+  }
+}
+
+unittest {
+  import std.exception : assertThrown, collectExceptionMsg;
+
+  auto engine = new Engine();
+  auto store = new Store(engine);
+  auto module_ = Module.from(store, wat_trap_module);
+  assert(module_.valid, "Error compiling module!");
+  auto imports = [
+    new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &fail, store.handle).asExtern
+  ];
+  auto instance = new Instance(store, module_, imports);
+  assert(instance.valid && instance.exports.length == 2, "Error accessing exports!");
+  auto callbackFunc = Function.from(instance.exports[0]);
+
+  assert(instance.exports[0].name == "callback" && callbackFunc.valid, "Failed to get the `callback` function!");
+
+  Value[] results;
+  assertThrown(callbackFunc.call(results));
+  // TODO: Assert trap message equals "callback abort"
+  // assert(
+  //   collectExceptionMsg!Exception(callbackFunc.call(results)) == "callback abort",
+  //   "Error calling exported function, expected trap!"
+  // );
+
+  destroy(instance);
+  destroy(module_);
 }
