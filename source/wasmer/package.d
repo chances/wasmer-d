@@ -91,8 +91,11 @@ unittest {
   destroy(store);
 }
 
-/// Limits of a block of `Memory`.
+/// Limits of the page size of a block of `Memory`. One page of memory is 64 kB.
 alias Limits = wasm_limits_t;
+
+/// Size in bytes of one page of WebAssembly memory. One page of memory is 64 kB.
+enum uint pageSize = 65_536;
 
 /// A block of memory.
 class Memory : Handle!wasm_memory_t {
@@ -104,7 +107,7 @@ class Memory : Handle!wasm_memory_t {
   this(Store store, Limits limits) {
     this.limits = limits;
     type = wasm_memorytype_new(&this.limits);
-    super(wasm_memory_new(cast(wasm_store_t*) store.handle, type));
+    super(wasm_memory_new(store.handle, type));
   }
   ~this() {
     if (valid) {
@@ -118,6 +121,50 @@ class Memory : Handle!wasm_memory_t {
   override bool valid() @property const {
     return type !is null && super.valid;
   }
+
+  /// The current length in pages of this block of memory. One page of memory is 64 kB.
+  uint pageLength() @property const {
+    return wasm_memory_size(handle);
+  }
+
+  /// The current length in bytes of this block of memory.
+  ulong length() @property const {
+    return wasm_memory_data_size(handle);
+  }
+
+  ///
+  void* ptr() @property const {
+    return wasm_memory_data(handle);
+  }
+
+  /// A slice of all the data in this block of memory.
+  ubyte[] data() @property const {
+    return cast(ubyte[]) ptr[0..length];
+  }
+
+  /// Grows this block of memory by the given amount of pages.
+  /// Returns: Whether this block of memory was successfully grown. Use the `Handle.lastError` property to get more details of the error, if any.
+  bool grow(uint deltaPages) {
+    return wasm_memory_grow(handle, deltaPages);
+  }
+}
+
+unittest {
+  auto store = new Store(new Engine());
+  const maxNumPages = 5;
+  auto memory = new Memory(store, Limits(maxNumPages - 1, maxNumPages));
+
+  assert(memory.valid, "Error creating block of memory!");
+  assert(memory.pageLength == 4);
+  assert(memory.length == 4 * pageSize);
+  assert(memory.grow(0));
+
+  assert(memory.grow(1));
+  assert(memory.pageLength == 5);
+  assert(memory.length == 5 * pageSize);
+  assert(!memory.grow(1));
+
+  destroy(memory);
 }
 
 /// A WebAssembly module.
