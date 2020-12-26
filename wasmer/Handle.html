@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Interface Handle - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
+		<title>Class Handle - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
 		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
 		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
@@ -72,16 +72,80 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Interface Handle</h1><p></p>
+			<h1>Class Handle</h1><p>Manages a native handle to a Wasmer structure.
+</p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
-			<span class="kwd">interface</span> <span class="typ">Handle</span>
-			<span class="pun">;</span>
+			<span class="kwd">class</span> <span class="typ">Handle</span>(T)
+			<br/>
+			&nbsp;&nbsp;
+			<br/>
+			<span class="kwd">if</span> <span class="pun">(</span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">struct</span><span class="pun">)</span><span class="pun">);</span>
 					</div>
 				</code>
 			</div>
 			
+			<section><h2>Constructors</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Handle.this.html" class="public">
+								<code>this</code>
+							</a>
+							<span class="tableEntryAnnotation">(value, borrowed)</span>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Fields</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Handle.borrowed.html" class="public"><code>borrowed</code></a>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">bool</span></code></td><td>Whether this handle was borrowed from the Wasmer runtime. Borrowed handles are not automatically freed in D-land.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Properties</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Handle.handle.html" class="public property"><code>handle</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="pln">T</span><span class="pun">*</span></code></td><td></td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Handle.lastError.html" class="public property"><code>lastError</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">string</span></code></td><td>The last error message that was raised by the Wasmer Runtime.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Handle.valid.html" class="public property"><code>valid</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">bool</span></code></td><td>Whether this managed handle to a Wasmer structure is valid.
+</td>
+					</tr>
+				</table>
+			</section>
 			
 			<footer>
 				<table class="license-info">

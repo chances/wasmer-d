@@ -83,23 +83,6 @@ $('#symbolSearchPane').show();</script>
 </section>
 </section>
 			<section>
-				<h2>Interfaces</h2>
-				<table>
-					<col class="caption"/>
-					<tr>
-						<th>Name</th><th>Description</th>
-					</tr>
-					<tr>
-						<td>
-							<code>
-								<a id="Handle" class="public" href="./wasmer/Handle.html">Handle</a>
-							</code>
-						</td>
-						<td></td>
-					</tr>
-				</table>
-			</section>
-			<section>
 				<h2>Classes</h2>
 				<table>
 					<col class="caption"/>
@@ -134,10 +117,28 @@ $('#symbolSearchPane').show();</script>
 					<tr>
 						<td>
 							<code>
+								<a id="Handle" class="public" href="./wasmer/Handle.html">Handle</a>
+							</code>
+						</td>
+						<td>Manages a native handle to a Wasmer structure.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
 								<a id="Instance" class="public" href="./wasmer/Instance.html">Instance</a>
 							</code>
 						</td>
 						<td>A WebAssembly virtual machine instance.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Memory" class="public" href="./wasmer/Memory.html">Memory</a>
+							</code>
+						</td>
+						<td>A block of memory.
 </td>
 					</tr>
 					<tr>
@@ -172,7 +173,27 @@ $('#symbolSearchPane').show();</script>
 								<a id="Value" class="public" href="./wasmer/Value.html">Value</a>
 							</code>
 						</td>
-						<td>A WebAssembly value.
+						<td>A WebAssembly value, wrapping an int, long, float, or double.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Manifest constants</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a id="pageSize" class="public" href="./wasmer/pageSize.html">
+								<code>pageSize</code>
+							</a>
+						</td>
+						<td>
+						</td>
+						<td>Size in bytes of one page of WebAssembly memory. One page of memory is 64 kB.
 </td>
 					</tr>
 				</table>
@@ -206,6 +227,18 @@ $('#symbolSearchPane').show();</script>
 							<code class="prettyprint lang-d"><span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="typ">void</span><span class="pun">*</span><span class="pun">, </span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span></code>
 						</td>
 						<td>A function to be called from WASM code. Includes an environment variable.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="Limits" class="public" href="./wasmer/Limits.html">
+								<code>Limits</code>
+							</a>
+						</td>
+						<td>
+							<code class="prettyprint lang-d"><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_limits_t</span></code>
+						</td>
+						<td>Limits of the page size of a block of <code class="lang-d"><a href="./wasmer/Memory.html"><span class="typ">Memory</span></a></code>. One page of memory is 64 kB.
 </td>
 					</tr>
 				</table>

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Class Module - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
+		<title>Class Memory - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
 		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
 		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
@@ -72,13 +72,13 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Class Module</h1><p>A WebAssembly module.
+			<h1>Class Memory</h1><p>A block of memory.
 </p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
-			<span class="kwd">class</span> <span class="typ">Module</span>
-			<br>&nbsp;&nbsp;: <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="typ">Handle</span>!(wasmer.bindings.wasm_module_t)
+			<span class="kwd">class</span> <span class="typ">Memory</span>
+			<br>&nbsp;&nbsp;: <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="typ">Handle</span>!(wasmer.bindings.wasm_memory_t)
 			<span class="pun">;</span>
 					</div>
 				</code>
@@ -92,12 +92,26 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 					<tr>
 						<td>
-							<a href="../wasmer/Module.this.html" class="public">
+							<a href="../wasmer/Memory.this.html" class="public">
 								<code>this</code>
 							</a>
-							<span class="tableEntryAnnotation">(store, wasmBytes)</span>
+							<span class="tableEntryAnnotation">(store, limits)</span>
 						</td>
 						<td></td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Fields</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Memory.limits.html" class="public"><code>limits</code></a>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_limits_t</span><span class="pun">)</span></code></td><td></td>
 					</tr>
 				</table>
 			</section>
@@ -109,15 +123,37 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 					<tr>
 						<td>
-							<a href="../wasmer/Module.hostInfo.html" class="public property"><code>hostInfo</code></a><span class="tableEntryAnnotation">[set]</span>
+							<a href="../wasmer/Memory.data.html" class="public property"><code>data</code></a><span class="tableEntryAnnotation">[get]</span>
 						</td>
-						<td class="typecol"><code class="prettyprint lang-d"><span class="pln">T</span></code></td><td></td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">ubyte</span><span class="pun">[]</span></code></td><td>A slice of all the data in this block of memory.
+</td>
 					</tr>
 					<tr>
 						<td>
-							<a href="../wasmer/Module.hostInfo.html" class="public property"><code>hostInfo</code></a><span class="tableEntryAnnotation">[get]</span>
+							<a href="../wasmer/Memory.length.html" class="public property"><code>length</code></a><span class="tableEntryAnnotation">[get]</span>
 						</td>
-						<td class="typecol"><code class="prettyprint lang-d"><span class="pln">T</span></code></td><td></td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">ulong</span></code></td><td>The current length in bytes of this block of memory.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Memory.pageLength.html" class="public property"><code>pageLength</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">uint</span></code></td><td>The current length in pages of this block of memory. One page of memory is 64 kB.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Memory.ptr.html" class="public property"><code>ptr</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">void</span><span class="pun">*</span></code></td><td></td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Memory.valid.html" class="public property"><code>valid</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">bool</span></code></td><td>Whether this managed handle to a <code class="lang-d"><span class="pln">wasm_memory_t</span></code> is valid.
+</td>
 					</tr>
 				</table>
 			</section>
@@ -129,12 +165,12 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 					<tr>
 						<td>
-							<a href="../wasmer/Module.from.html" class="public">
-								<code>from</code>
+							<a href="../wasmer/Memory.grow.html" class="public">
+								<code>grow</code>
 							</a>
-							<span class="tableEntryAnnotation">(store, source)</span>
+							<span class="tableEntryAnnotation">(deltaPages)</span>
 						</td>
-						<td>Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
+						<td>Grows this block of memory by the given amount of pages.
 </td>
 					</tr>
 				</table>
