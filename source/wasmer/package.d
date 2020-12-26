@@ -181,6 +181,9 @@ class Module : Handle!wasm_module_t {
     super(wasm_module_new(cast(wasm_store_t*) store.handle, &bytes));
     wasm_byte_vec_delete(&bytes);
   }
+  private this(wasm_module_t* module_) {
+    super(module_);
+  }
   ~this() {
     if (valid) wasm_module_delete(handle);
   }
@@ -192,6 +195,15 @@ class Module : Handle!wasm_module_t {
     wasm_byte_vec_t wasmBytes;
     wat2wasm(&wat, &wasmBytes);
     return new Module(store, cast(ubyte[]) wasmBytes.data[0 .. wasmBytes.size]);
+  }
+
+  /// Deserializes a module given the bytes of a previously serialized module.
+  /// Returns: `null` on error. Use the `Handle.lastError` property to get more details of the error, if any.
+  static Module deserialize(Store store, ubyte[] data) {
+    wasm_byte_vec_t dataVec = wasm_byte_vec_t(data.length, cast(char*) data.ptr);
+    auto module_ = wasm_module_deserialize(store.handle, &dataVec);
+    if (module_ == null) return null;
+    return new Module(module_);
   }
 
   ///
@@ -211,6 +223,15 @@ class Module : Handle!wasm_module_t {
   Instance instantiate(Extern[] imports = []) {
     assert(valid);
     return new Instance(store, this, imports);
+  }
+
+  /// Serializes this module, the result can be saved and later deserialized back into an executable module.
+  /// Returns: `null` on error. Use the `Handle.lastError` property to get more details of the error, if any.
+  ubyte[] serialize() {
+    wasm_byte_vec_t dataVec;
+    wasm_module_serialize(handle, &dataVec);
+    if (dataVec.size == 0 || dataVec.data == null) return null;
+    return cast(ubyte[]) dataVec.data[0..dataVec.size];
   }
 }
 
@@ -232,6 +253,11 @@ unittest {
 
   assert(module_.valid, "Error compiling module!");
   assert(module_.instantiate().valid, "Error instantiating module!");
+
+  auto serializedModule = module_.serialize();
+  assert(serializedModule !is null, "Error serializing module!");
+
+  assert(Module.deserialize(store, serializedModule).valid, "Error deserializing module!");
 }
 
 ///
