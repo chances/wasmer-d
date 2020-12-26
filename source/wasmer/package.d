@@ -18,32 +18,48 @@ private extern(C) void finalizeHostInfo(T)(void* data) if (is(T == class)) {
   destroy(this.hostInfo!T);
 }
 
-///
-interface Handle {
-  bool valid() @property const;
+/// Manages a native handle to a Wasmer structure.
+abstract class Handle(T) if (is(T == struct)) {
+  private T* handle_;
+  /// Whether this handle was borrowed from the Wasmer runtime. Borrowed handles are not automatically freed in D-land.
+  const bool borrowed;
+
+  ///
+  this(T* value, bool borrowed = false) {
+    handle_ = value;
+    this.borrowed = borrowed;
+  }
+  ~this() {
+    handle_ = null;
+  }
+
+  /// Whether this managed handle to a Wasmer structure is valid.
+  bool valid() @property const {
+    return handle_ !is null;
+  }
+
+  ///
+  T* handle() @property const {
+    return cast(T*) handle_;
+  }
+
+  /// The last error message that was raised by the Wasmer Runtime.
+  string lastError() @property const {
+    const size = wasmer_last_error_length();
+    auto buf = new char[size];
+    wasmer_last_error_message(buf.ptr, size);
+    return buf.idup;
+  }
 }
 
 ///
-final class Engine : Handle {
-  private wasm_engine_t* engine;
-
+final class Engine : Handle!wasm_engine_t {
   ///
   this() {
-    engine = wasm_engine_new();
+    super(wasm_engine_new());
   }
   ~this() {
-    if (valid) wasm_engine_delete(engine);
-    engine = null;
-  }
-
-  /// Whether this managed handle to a `wasm_engine_t` is valid.
-  bool valid() @property const {
-    return engine !is null;
-  }
-
-  ///
-  const(wasm_engine_t*) handle() @property const {
-    return engine;
+    if (valid) wasm_engine_delete(handle);
   }
 }
 
@@ -54,30 +70,18 @@ unittest {
 /// All runtime objects are tied to a specific store.
 ///
 /// Multiple stores can be created, but their objects cannot interact. Every store and its objects must only be accessed in a single thread.
-class Store : Handle {
+class Store : Handle!wasm_store_t {
   ///
   const Engine engine;
-  private wasm_store_t* store;
 
   ///
   this (Engine engine) {
     this.engine = engine;
 
-    store = wasm_store_new(cast(wasm_engine_t*) engine.handle);
+    super(wasm_store_new(cast(wasm_engine_t*) engine.handle));
   }
   ~this() {
-    if (valid) wasm_store_delete(store);
-    store = null;
-  }
-
-  /// Whether this managed handle to a `wasm_store_t` is valid.
-  bool valid() @property const {
-    return store !is null;
-  }
-
-  ///
-  const(wasm_store_t*) handle() @property const {
-    return store;
+    if (valid) wasm_store_delete(handle);
   }
 }
 
@@ -87,21 +91,94 @@ unittest {
   destroy(store);
 }
 
-/// A WebAssembly module.
-class Module : Handle {
-  private wasm_module_t* module_;
+/// Limits of the page size of a block of `Memory`. One page of memory is 64 kB.
+alias Limits = wasm_limits_t;
 
+/// Size in bytes of one page of WebAssembly memory. One page of memory is 64 kB.
+enum uint pageSize = 65_536;
+
+/// A block of memory.
+class Memory : Handle!wasm_memory_t {
+  private wasm_memorytype_t* type;
+  ///
+  const Limits limits;
+
+  ///
+  this(Store store, Limits limits) {
+    this.limits = limits;
+    type = wasm_memorytype_new(&this.limits);
+    super(wasm_memory_new(store.handle, type));
+  }
+  ~this() {
+    if (valid) {
+      wasm_memory_delete(handle);
+      wasm_memorytype_delete(type);
+    }
+    type = null;
+  }
+
+  /// Whether this managed handle to a `wasm_memory_t` is valid.
+  override bool valid() @property const {
+    return type !is null && super.valid;
+  }
+
+  /// The current length in pages of this block of memory. One page of memory is 64 kB.
+  uint pageLength() @property const {
+    return wasm_memory_size(handle);
+  }
+
+  /// The current length in bytes of this block of memory.
+  ulong length() @property const {
+    return wasm_memory_data_size(handle);
+  }
+
+  ///
+  void* ptr() @property const {
+    return wasm_memory_data(handle);
+  }
+
+  /// A slice of all the data in this block of memory.
+  ubyte[] data() @property const {
+    return cast(ubyte[]) ptr[0..length];
+  }
+
+  /// Grows this block of memory by the given amount of pages.
+  /// Returns: Whether this block of memory was successfully grown. Use the `Handle.lastError` property to get more details of the error, if any.
+  bool grow(uint deltaPages) {
+    return wasm_memory_grow(handle, deltaPages);
+  }
+}
+
+unittest {
+  auto store = new Store(new Engine());
+  const maxNumPages = 5;
+  auto memory = new Memory(store, Limits(maxNumPages - 1, maxNumPages));
+
+  assert(memory.valid, "Error creating block of memory!");
+  assert(memory.pageLength == 4);
+  assert(memory.length == 4 * pageSize);
+  assert(memory.grow(0));
+
+  assert(memory.grow(1));
+  assert(memory.pageLength == 5);
+  assert(memory.length == 5 * pageSize);
+  assert(!memory.grow(1));
+
+  destroy(memory);
+}
+
+/// A WebAssembly module.
+class Module : Handle!wasm_module_t {
   ///
   this(Store store, ubyte[] wasmBytes) {
     wasm_byte_vec_t bytes;
     wasm_byte_vec_new(&bytes, wasmBytes.length, cast(char*) wasmBytes.ptr);
 
-    module_ = wasm_module_new(cast(wasm_store_t*) store.handle, &bytes);
+    super(wasm_module_new(cast(wasm_store_t*) store.handle, &bytes));
     wasm_byte_vec_delete(&bytes);
   }
   ~this() {
-    if (valid) wasm_module_delete(module_);
-    module_ = null;
+    if (valid) wasm_module_delete(handle);
   }
 
   /// Instantiate a module given a string in the WebAssembly <a href="https://webassembly.github.io/spec/core/text/index.html">Text Format</a>.
@@ -111,16 +188,6 @@ class Module : Handle {
     wasm_byte_vec_t wasmBytes;
     wat2wasm(&wat, &wasmBytes);
     return new Module(store, cast(ubyte[]) wasmBytes.data[0 .. wasmBytes.size]);
-  }
-
-  /// Whether this managed handle to a `wasm_module_t` is valid.
-  bool valid() @property const {
-    return module_ !is null;
-  }
-
-  ///
-  const(wasm_module_t*) handle() @property const {
-    return module_;
   }
 
   ///
@@ -156,37 +223,24 @@ unittest {
 }
 
 ///
-class Extern : Handle {
-  private wasm_extern_t* extern_;
+class Extern : Handle!wasm_extern_t {
   ///
   const string name;
   ///
   const wasm_externkind_enum kind;
 
   private this(wasm_extern_t* extern_, string name = "") {
-    this.extern_ = extern_;
+    super(extern_);
     this.name = name;
     kind = wasm_extern_kind(extern_).to!wasm_externkind_enum;
   }
   ~this() {
-    if (valid) wasm_extern_delete(extern_);
-    extern_ = null;
-  }
-
-  /// Whether this managed handle to a `wasm_extern_t` is valid.
-  bool valid() @property const {
-    return extern_ !is null;
-  }
-
-  ///
-  const(wasm_extern_t*) handle() @property const {
-    return extern_;
+    if (valid) wasm_extern_delete(handle);
   }
 }
 
 /// A WebAssembly virtual machine instance.
-class Instance : Handle {
-  private wasm_instance_t* instance;
+class Instance : Handle!wasm_instance_t {
   private wasm_exporttype_vec_t exportTypes;
 
   ///
@@ -198,31 +252,20 @@ class Instance : Handle {
     auto importsVecElements = cast(wasm_extern_t**) imports.map!(import_ => import_.handle).array.ptr;
     wasm_extern_vec_new(&importObject, imports.length, importsVecElements);
 
-    instance = wasm_instance_new(
+    super(wasm_instance_new(
       cast(wasm_store_t*) store.handle, cast(wasm_module_t*) module_.handle, &importObject, null
-    );
+    ));
 
     // Get exported types
     wasm_module_exports(cast(wasm_module_t*) module_.handle, &exportTypes);
   }
   ~this() {
-    if (valid) wasm_instance_delete(instance);
-    instance = null;
-  }
-
-  /// Whether this managed handle to a `wasm_instance_t` is valid.
-  bool valid() @property const {
-    return instance !is null;
-  }
-
-  ///
-  const(wasm_instance_t*) handle() @property const {
-    return instance;
+    if (valid) wasm_instance_delete(handle);
   }
 
   Extern[] exports() @property const {
     wasm_extern_vec_t exportsVector;
-    wasm_instance_exports(instance, &exportsVector);
+    wasm_instance_exports(handle, &exportsVector);
 
     auto exports = new Extern[exportsVector.size];
     for (auto i = 0; i < exportsVector.size; i++) {
@@ -253,9 +296,8 @@ unittest {
   destroy(engine);
 }
 
-/// A WebAssembly value.
-class Value : Handle {
-  private wasm_val_t* value;
+/// A WebAssembly value, wrapping an int, long, float, or double.
+class Value : Handle!wasm_val_t {
   private const bool borrowed;
   ///
   const wasm_valkind_enum kind;
@@ -263,50 +305,49 @@ class Value : Handle {
   ///
   this(wasm_valkind_enum kind) {
     this.kind = kind;
-    this.value = new wasm_val_t(kind);
+    super(new wasm_val_t(kind));
     borrowed = false;
   }
   ///
   this(int value) {
     this.kind = wasm_valkind_enum.WASM_I32;
-    this.value = new wasm_val_t;
-    this.value.of.i32 = value;
+    super(new wasm_val_t);
+    handle.of.i32 = value;
     borrowed = false;
   }
   ///
   this(long value) {
     this.kind = wasm_valkind_enum.WASM_I64;
-    this.value = new wasm_val_t;
-    this.value.of.i64 = value;
+    super(new wasm_val_t);
+    handle.of.i64 = value;
     borrowed = false;
   }
   ///
   this(float value) {
     this.kind = wasm_valkind_enum.WASM_F32;
-    this.value = new wasm_val_t;
-    this.value.of.f32 = value;
+    super(new wasm_val_t);
+    handle.of.f32 = value;
     borrowed = false;
   }
   ///
   this(double value) {
     this.kind = wasm_valkind_enum.WASM_F64;
-    this.value = new wasm_val_t;
-    this.value.of.f64 = value;
+    super(new wasm_val_t);
+    handle.of.f64 = value;
     borrowed = false;
   }
   private this(wasm_val_t value) {
-    this.value = new wasm_val_t(value.kind, value.of);
+    super(new wasm_val_t(value.kind, value.of));
     this.kind = value.kind.to!wasm_valkind_enum;
     borrowed = false;
   }
   private this(wasm_val_t* value) {
-    this.value = value;
+    super(new wasm_val_t);
     this.kind = value.kind.to!wasm_valkind_enum;
     borrowed = true;
   }
   ~this() {
-    if (valid && borrowed) wasm_val_delete(value);
-    value = null;
+    if (valid && borrowed) wasm_val_delete(handle);
   }
 
   ///
@@ -314,14 +355,9 @@ class Value : Handle {
     return new Value(value);
   }
 
-  /// Whether this managed handle to a `wasm_val_t` is valid.
-  bool valid() @property const {
-    return value !is null;
-  }
-
   ///
-  const(wasm_val_t*) handle() @property const {
-    return value;
+  auto value() @property const {
+    return handle;
   }
 }
 
@@ -333,19 +369,17 @@ extern(C) alias CallbackWithEnv = wasm_trap_t* function(
 );
 
 /// A WebAssembly function reference.
-class Function : Handle {
-  private wasm_func_t* func;
-
+class Function : Handle!wasm_func_t {
   /// Instantiate a D function to be called from WASM code.
   this(Store store, wasm_functype_t* type, Callback callback) {
-    func = wasm_func_new(cast(wasm_store_t*) store.handle, type, callback);
+    super(wasm_func_new(cast(wasm_store_t*) store.handle, type, callback));
   }
   /// ditto
   this(Store store, wasm_functype_t* type, CallbackWithEnv callback, void* env) {
-    func = wasm_func_new_with_env(cast(wasm_store_t*) store.handle, type, callback, env, null);
+    super(wasm_func_new_with_env(cast(wasm_store_t*) store.handle, type, callback, env, null));
   }
   private this(wasm_func_t* func) {
-    this.func = func;
+    super(func);
   }
 
   ///
@@ -353,19 +387,9 @@ class Function : Handle {
     return new Function(wasm_extern_as_func(cast(wasm_extern_t*) extern_.handle));
   }
 
-  /// Whether this managed handle to a `wasm_func_t` is valid.
-  bool valid() @property const {
-    return func !is null;
-  }
-
-  ///
-  const(wasm_func_t*) handle() @property const {
-    return func;
-  }
-
   ///
   Extern asExtern() @property const {
-    return new Extern(wasm_func_as_extern(cast(wasm_func_t*) func));
+    return new Extern(wasm_func_as_extern(handle));
   }
 
   /// Params:
@@ -387,9 +411,9 @@ class Function : Handle {
 
     wasm_val_vec_t resultsVec;
     wasm_val_vec_new_uninitialized(&resultsVec, 1);
-    const funcTrapped = wasm_func_call(func, &args, &resultsVec) !is null;
+    auto trap = wasm_func_call(handle, &args, &resultsVec);
     wasm_val_vec_delete(&args);
-    if (funcTrapped) return false;
+    if (trap !is null) throw new Exception(new Trap(trap).message);
     results = new Value[resultsVec.size];
     for (auto i = 0; i < resultsVec.size; i += 1) {
       results[i] = Value.from(resultsVec.data[i]);
@@ -452,34 +476,31 @@ unittest {
 }
 
 ///
-class Trap : Handle {
-  private wasm_trap_t* trap;
-
+class Trap : Handle!wasm_trap_t {
+  ///
+  const string message;
+  ///
+  this(wasm_trap_t* trap) {
+    super(trap, true);
+    wasm_name_t messageVec;
+    wasm_trap_message(trap, &messageVec);
+    this.message = messageVec.data[0..messageVec.size].idup;
+  }
   ///
   this(Store store, string message = "") {
     import std.string : toStringz;
 
-    trap = wasm_trap_new(cast(wasm_store_t*) store.handle, null);
+    super(wasm_trap_new(cast(wasm_store_t*) store.handle, null), );
+    this.message = message;
     if (message.length) {
       wasm_byte_vec_t stringVec;
       wasm_byte_vec_new(&stringVec, message.length, message.toStringz);
-      wasm_trap_message(trap, &stringVec);
+      wasm_trap_message(handle, &stringVec);
       wasm_byte_vec_delete(&stringVec);
     }
   }
   ~this() {
-    if (valid) wasm_trap_delete(trap);
-    trap = null;
-  }
-
-  /// Whether this managed handle to a `wasm_trap_t` is valid.
-  bool valid() @property const {
-    return trap !is null;
-  }
-
-  ///
-  const(wasm_trap_t*) handle() @property const {
-    return trap;
+    if (valid && !borrowed) wasm_trap_delete(handle);
   }
 
   ///
@@ -494,4 +515,50 @@ class Trap : Handle {
       wasm_trap_set_host_info(handle, &value);
     }
   }
+}
+
+version (unittest) {
+  const string wat_trap_module =
+    "(module" ~
+    "  (func $callback (import \"\" \"callback\") (result i32))" ~
+    "  (func (export \"callback\") (result i32) (call $callback))" ~
+    "  (func (export \"unreachable\") (result i32) (unreachable) (i32.const 1))" ~
+    ")";
+
+  package extern(C) wasm_trap_t* fail(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
+    assert(env !is null);
+    wasm_name_t message;
+    wasm_name_new_from_string_nt(&message, "callback abort"c.ptr);
+    wasm_trap_t* trap = wasm_trap_new(cast(wasm_store_t*) env, &message);
+    wasm_name_delete(&message);
+    return trap;
+  }
+}
+
+unittest {
+  import std.exception : assertThrown, collectExceptionMsg;
+
+  auto engine = new Engine();
+  auto store = new Store(engine);
+  auto module_ = Module.from(store, wat_trap_module);
+  assert(module_.valid, "Error compiling module!");
+  auto imports = [
+    new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &fail, store.handle).asExtern
+  ];
+  auto instance = new Instance(store, module_, imports);
+  assert(instance.valid && instance.exports.length == 2, "Error accessing exports!");
+  auto callbackFunc = Function.from(instance.exports[0]);
+
+  assert(instance.exports[0].name == "callback" && callbackFunc.valid, "Failed to get the `callback` function!");
+
+  Value[] results;
+  assertThrown(callbackFunc.call(results));
+  // TODO: Assert trap message equals "callback abort"
+  // assert(
+  //   collectExceptionMsg!Exception(callbackFunc.call(results)) == "callback abort",
+  //   "Error calling exported function, expected trap!"
+  // );
+
+  destroy(instance);
+  destroy(module_);
 }
