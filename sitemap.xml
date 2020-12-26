@@ -10,9 +10,9 @@
 <url><loc>http://127.0.0.1/wasmer/Engine.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.html</loc></url>
-<url><loc>http://127.0.0.1/wasmer/Extern.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.kind.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Extern.name.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.asExtern.html</loc></url>
