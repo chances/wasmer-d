@@ -169,8 +169,12 @@ unittest {
 
 /// A WebAssembly module.
 class Module : Handle!wasm_module_t {
+  private Store store;
+
   ///
   this(Store store, ubyte[] wasmBytes) {
+    this.store = store;
+
     wasm_byte_vec_t bytes;
     wasm_byte_vec_new(&bytes, wasmBytes.length, cast(char*) wasmBytes.ptr);
 
@@ -202,6 +206,12 @@ class Module : Handle!wasm_module_t {
       wasm_module_set_host_info(handle, &value);
     }
   }
+
+  /// Creates a new `Instance` of this module from the given imports, if any.
+  Instance instantiate(Extern[] imports = []) {
+    assert(valid);
+    return new Instance(store, this, imports);
+  }
 }
 
 version (unittest) {
@@ -218,8 +228,10 @@ version (unittest) {
 unittest {
   auto engine = new Engine();
   auto store = new Store(engine);
+  auto module_ = Module.from(store, wat_sum_module);
 
-  assert(Module.from(store, wat_sum_module).valid, "Error compiling module!");
+  assert(module_.valid, "Error compiling module!");
+  assert(module_.instantiate().valid, "Error instantiating module!");
 }
 
 ///
@@ -462,15 +474,19 @@ unittest {
     new Function(store, wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32()), &print).asExtern,
     new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &closure, &i).asExtern
   ];
-  auto instance = new Instance(store, module_, imports);
+  auto instance = module_.instantiate(imports);
   auto runFunc = Function.from(instance.exports[0]);
 
   assert(instance.exports[0].name == "run" && runFunc.valid, "Failed to get the `run` function!");
 
+  auto three = new Value(3);
+  auto four = new Value(4);
   Value[] results;
-  assert(runFunc.call([new Value(3), new Value(4)], results), "Error calling the `run` function!");
+  assert(runFunc.call([three, four], results), "Error calling the `run` function!");
   assert(results.length == 1 && results[0].value.of.i32 == 49);
 
+  destroy(three);
+  destroy(four);
   destroy(instance);
   destroy(module_);
 }
