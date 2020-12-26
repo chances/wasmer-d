@@ -10,6 +10,7 @@
 module wasmer;
 
 import std.conv : to;
+import std.traits : isCallable, Parameters;
 
 public import wasmer.bindings;
 public import wasmer.bindings.funcs;
@@ -212,19 +213,6 @@ class Module : Handle!wasm_module_t {
     return wasm_module_validate(store.handle, &dataVec);
   }
 
-  ///
-  T hostInfo(T)() @property const {
-    return cast(T) wasm_module_get_host_info(handle);
-  }
-  ///
-  void hostInfo(T)(ref T value) @property {
-    static if (is(T == class)) {
-      wasm_module_set_host_info_with_finalizer(handle, &value, &finalizeHostInfo!T);
-    } else {
-      wasm_module_set_host_info(handle, &value);
-    }
-  }
-
   /// Creates a new `Instance` of this module from the given imports, if any.
   Instance instantiate(Extern[] imports = []) {
     assert(valid);
@@ -268,18 +256,25 @@ unittest {
 
 ///
 class Extern : Handle!wasm_extern_t {
+  private const wasm_exporttype_t* _type;
   ///
   const string name;
   ///
   const wasm_externkind_enum kind;
 
-  private this(wasm_extern_t* extern_, string name = "") {
+  private this(wasm_extern_t* extern_, const wasm_exporttype_t* type, string name = "") {
     super(extern_);
+    this._type = type;
     this.name = name;
     kind = wasm_extern_kind(extern_).to!wasm_externkind_enum;
   }
   ~this() {
     if (valid) wasm_extern_delete(handle);
+  }
+
+  ///
+  const(wasm_exporttype_t*) type() @property const {
+    return _type;
   }
 }
 
@@ -316,9 +311,22 @@ class Instance : Handle!wasm_instance_t {
       const nameVec = wasm_exporttype_name(exportTypes.data[i]);
       const name = cast(string) nameVec.data[0..nameVec.size];
 
-      exports[i] = new Extern(exportsVector.data[i], name.idup);
+      exports[i] = new Extern(exportsVector.data[i], exportTypes.data[i], name.idup);
     }
     return exports;
+  }
+
+  ///
+  T hostInfo(T)() @property const {
+    return cast(T) wasm_instance_get_host_info(handle);
+  }
+  ///
+  void hostInfo(T)(ref T value) @property {
+    static if (is(T == class)) {
+      wasm_instance_set_host_info_with_finalizer(handle, &value, &finalizeHostInfo!T);
+    } else {
+      wasm_instance_set_host_info(handle, &value);
+    }
   }
 }
 
@@ -342,7 +350,6 @@ unittest {
 
 /// A WebAssembly value, wrapping an int, long, float, or double.
 class Value : Handle!wasm_val_t {
-  private const bool borrowed;
   ///
   const wasm_valkind_enum kind;
 
@@ -350,45 +357,38 @@ class Value : Handle!wasm_val_t {
   this(wasm_valkind_enum kind) {
     this.kind = kind;
     super(new wasm_val_t(kind));
-    borrowed = false;
   }
   ///
   this(int value) {
     this.kind = wasm_valkind_enum.WASM_I32;
     super(new wasm_val_t);
     handle.of.i32 = value;
-    borrowed = false;
   }
   ///
   this(long value) {
     this.kind = wasm_valkind_enum.WASM_I64;
     super(new wasm_val_t);
     handle.of.i64 = value;
-    borrowed = false;
   }
   ///
   this(float value) {
     this.kind = wasm_valkind_enum.WASM_F32;
     super(new wasm_val_t);
     handle.of.f32 = value;
-    borrowed = false;
   }
   ///
   this(double value) {
     this.kind = wasm_valkind_enum.WASM_F64;
     super(new wasm_val_t);
     handle.of.f64 = value;
-    borrowed = false;
   }
   private this(wasm_val_t value) {
     super(new wasm_val_t(value.kind, value.of));
     this.kind = value.kind.to!wasm_valkind_enum;
-    borrowed = false;
   }
   private this(wasm_val_t* value) {
-    super(new wasm_val_t);
+    super(new wasm_val_t, true);
     this.kind = value.kind.to!wasm_valkind_enum;
-    borrowed = true;
   }
   ~this() {
     if (valid && borrowed) wasm_val_delete(handle);
@@ -396,6 +396,10 @@ class Value : Handle!wasm_val_t {
 
   ///
   static Value from(wasm_val_t value) {
+    return new Value(value);
+  }
+  ///
+  static Value from(wasm_val_t* value) {
     return new Value(value);
   }
 
@@ -412,15 +416,153 @@ extern(C) alias CallbackWithEnv = wasm_trap_t* function(
   void* env, const wasm_val_vec_t* arguments, wasm_val_vec_t* results
 );
 
+/// A delegate to be called from WASM code.
+alias CallbackWithDelegate = void delegate(Module module_, Value[] arguments, Value[] results);
+
+private enum bool isInt32(T) = __traits(isSame, T, bool) || __traits(isSame, T, int) || __traits(isSame, T, uint);
+private enum bool isInt64(T) = __traits(isSame, T, long) || __traits(isSame, T, ulong);
+private enum bool isFloat32(T) = __traits(isSame, T, float);
+private enum bool isFloat64(T) = __traits(isSame, T, double);
+
+///
+wasm_functype_t* functype(Func)(Func _, uint numResults = 0) if (isCallableAsFunction!Func) {
+  import std.meta : staticIndexOf, AliasSeq;
+  import std.traits : ReturnType, Unqual;
+
+  alias Tail(Args...) = Args[1 .. $];
+  alias Params = Tail!(Parameters!Func);
+
+  wasm_valtype_vec_t params, results;
+
+  // Params types
+  static if (Params.length == 0)
+    wasm_valtype_vec_new_empty(&params);
+  else {
+    wasm_valtype_t*[Params.length] ps;
+    static foreach (Param; Params) {
+      static if (isInt32!(Unqual!Param))
+        ps[staticIndexOf!(Param, Params)] = wasm_valtype_new_i32();
+      static if (isInt64!(Unqual!Param))
+        ps[staticIndexOf!(Param, Params)] = wasm_valtype_new_i64();
+      static if (isFloat32!(Unqual!Param))
+        ps[staticIndexOf!(Param, Params)] = wasm_valtype_new_f32();
+      static if (isFloat64!(Unqual!Param))
+        ps[staticIndexOf!(Param, Params)] = wasm_valtype_new_f64();
+    }
+    wasm_valtype_vec_new(&params, (Params.length).to!ulong, ps.ptr);
+  }
+
+  // Result types
+  static if (__traits(isSame, ReturnType!Func, Value)) {
+    wasm_valtype_t*[1] rs = [wasm_valtype_new_anyref()];
+    wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
+  } else static if (__traits(isSame, ReturnType!Func, Value[])) {
+    wasm_valtype_t*[numResults] rs;
+    for (auto i = 0; i < numResults; i += 1) {
+      rs[i] = wasm_valtype_new_anyref();
+    }
+    wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
+  } else static if (__traits(isSame, ReturnType!Func, void))
+    wasm_valtype_vec_new_empty(&results);
+  else static assert(0, "Unsupported function return type!");
+
+  return wasm_functype_new(&params, &results);
+}
+
+private struct CallbackContext {
+  Module module_;
+  CallbackWithDelegate callback;
+}
+
+private extern(C) wasm_trap_t* callbackWithDelegate(
+  void* env, const wasm_val_vec_t* arguments, wasm_val_vec_t* results
+) {
+  import std.algorithm : map;
+  import std.array : array;
+  import std.string : toStringz;
+
+  try {
+    auto context = cast(CallbackContext*) env;
+    // Forward arguments to the managed callback
+    Value[] argumentsManaged = arguments.data[0..arguments.size].map!(arg => Value.from(arg)).array;
+    auto resultsManaged = new Value[results.size];
+
+    context.callback(context.module_, argumentsManaged, resultsManaged);
+
+    // Pass results back to the runtime
+    for (auto i = 0; i < resultsManaged.length; i += 1) {
+      results.data[i] = *resultsManaged[i].value;
+    }
+  } catch (Exception ex) {
+    wasm_name_t message;
+    wasm_name_new_from_string_nt(&message, toStringz(ex.msg));
+    wasm_trap_t* trap = wasm_trap_new(cast(wasm_store_t*) env, &message);
+    wasm_name_delete(&message);
+    return trap;
+  }
+  return null;
+}
+
+/// Detect whether `T` is an `Module`.
+enum bool isModule(T) = __traits(isSame, T, Module);
+
+/// Detect whether `T` is an `Instance`.
+enum bool isInstance(T) = __traits(isSame, T, Instance);
+
+/// Detect whether `T` is callable as a `Function`.
+///
+/// See_Also:
+/// $(UL
+///   $(LI `Function`)
+///   $(LI `CallbackWithDelegate`)
+///   $(LI <a href="https://dlang.org/library/std/traits/is_callable.html" title="The D Language Website">`isCallable`</a>)
+///   $(LI <a href="https://dlang.org/spec/type.html#basic-data-types" title="The D Language Website">Basic Data Types</a>)
+///   $(LI <a href="https://dlang.org/spec/function.html#param-storage" title="The D Language Website">Parameter Storage Classes</a>)
+/// )
+template isCallableAsFunction(T...) if (T.length == 1 && isCallable!T /*&& is (ReturnType!T == void) */) {
+  import std.meta : allSatisfy, templateOr;
+  import std.traits : isBoolean, isIntegral, isFloatingPoint;
+
+  alias TParams = Parameters!T;
+  static assert(TParams.length > 0, "The delegate must at least have one argument of type `Module`");
+  static if (TParams.length == 1 && !isModule!(TParams[0])) {
+    static assert(0, "The first parameter in the method must be of type `Module`");
+  }
+  enum bool isCallableAsFunction = allSatisfy!(templateOr!(
+    isBoolean,
+    isIntegral,
+    isFloatingPoint,
+    isModule
+  ), TParams);
+}
+
+@safe unittest {
+  interface I { void run(Module) const; }
+  struct S { static void opCall(Module, bool, int) {} }
+  class C { void opCall(double, float, Engine) {} }
+  auto c = new C;
+
+  static assert( isCallableAsFunction!(I.run));
+  static assert( isCallableAsFunction!(S));
+  static assert( isCallableAsFunction!((Module _) {}));
+  static assert( isCallableAsFunction!((Module _, int __, double ___) {}));
+  static assert(!isCallableAsFunction!c);
+  static assert(!isCallableAsFunction!(c.opCall));
+}
+
 /// A WebAssembly function reference.
 class Function : Handle!wasm_func_t {
   /// Instantiate a D function to be called from WASM code.
   this(Store store, wasm_functype_t* type, Callback callback) {
-    super(wasm_func_new(cast(wasm_store_t*) store.handle, type, callback));
+    super(wasm_func_new(store.handle, type, callback));
   }
   /// ditto
   this(Store store, wasm_functype_t* type, CallbackWithEnv callback, void* env) {
-    super(wasm_func_new_with_env(cast(wasm_store_t*) store.handle, type, callback, env, null));
+    super(wasm_func_new_with_env(store.handle, type, callback, env, null));
+  }
+  /// Instantiate a D delegate to be called from WASM code.
+  this(Store store, Module module_, wasm_functype_t* type, CallbackWithDelegate callback) {
+    this(store, type, &callbackWithDelegate, new CallbackContext(module_, callback));
   }
   private this(wasm_func_t* func) {
     super(func);
@@ -432,8 +574,22 @@ class Function : Handle!wasm_func_t {
   }
 
   ///
-  Extern asExtern() @property const {
-    return new Extern(wasm_func_as_extern(handle));
+  wasm_functype_t* type() @property const {
+    return wasm_func_type(handle);
+  }
+
+  ///
+  Extern asExtern(string name = "") @property const {
+    import std.string : toStringz;
+
+    if (name.length == 0) return new Extern(
+      wasm_func_as_extern(handle),
+      wasm_exporttype_new(null, wasm_functype_as_externtype(type))
+    );
+
+    wasm_name_t nameVec;
+    wasm_name_new_from_string_nt(&nameVec, toStringz(name));
+    return new Extern(wasm_func_as_extern(handle), wasm_exporttype_new(&nameVec, wasm_functype_as_externtype(type)));
   }
 
   /// Params:
@@ -447,15 +603,16 @@ class Function : Handle!wasm_func_t {
   /// results=Zero or more <a href="https://github.com/WebAssembly/multi-value/blob/master/proposals/multi-value/Overview.md">return values</a>
   /// Returns: Whether the function ran to completion without hitting a trap.
   bool call(Value[] arguments, out Value[] results) {
-    import std.algorithm : map;
-    import std.array : array;
-
     wasm_val_vec_t args;
-    wasm_val_vec_new(&args, arguments.length, arguments.map!(param => *param.handle).array.ptr);
+    wasm_val_vec_new_uninitialized(&args, arguments.length);
+    for (auto i = 0; i < arguments.length; i += 1) {
+      args.data[i] = *arguments[i].value;
+    }
 
     wasm_val_vec_t resultsVec;
-    wasm_val_vec_new_uninitialized(&resultsVec, 1);
+    wasm_val_vec_new_uninitialized(&resultsVec, wasm_functype_results(type).size);
     auto trap = wasm_func_call(handle, &args, &resultsVec);
+
     wasm_val_vec_delete(&args);
     if (trap !is null) throw new Exception(new Trap(trap).message);
     results = new Value[resultsVec.size];
@@ -481,14 +638,9 @@ version (unittest) {
 "  )" ~
 ")";
 
-  package extern(C) wasm_trap_t* print(const wasm_val_vec_t* arguments, wasm_val_vec_t* results) {
-    assert(arguments.size == 1 && arguments.data[0].of.i32 == 7);
-    wasm_val_copy(&results.data[0], &arguments.data[0]);
-    return null;
-  }
-
   package extern(C) wasm_trap_t* closure(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
     int i = *(cast(int*) env);
+    assert(i == 42);
 
     results.data[0].kind = WASM_I32;
     results.data[0].of.i32 = cast(int32_t) i;
@@ -502,8 +654,18 @@ unittest {
   auto module_ = Module.from(store, wat_callback_module);
   assert(module_.valid, "Error compiling module!");
   int i = 42;
+
+  auto print = (Module module_, Value[] arguments, Value[] results) => {
+    assert(arguments.length == 1 && arguments[0].value.of.i32 == 7);
+    assert(results.length == 1);
+    results[0] = new Value(arguments[0].value.of.i32);
+  }();
+  import std.functional : toDelegate;
   auto imports = [
-    new Function(store, wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32()), &print).asExtern,
+    new Function(
+      store, module_,
+      wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32()), print.toDelegate
+    ).asExtern,
     new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &closure, &i).asExtern
   ];
   auto instance = module_.instantiate(imports);
@@ -515,6 +677,7 @@ unittest {
   auto four = new Value(4);
   Value[] results;
   assert(runFunc.call([three, four], results), "Error calling the `run` function!");
+  assert(results.length == 1);
   assert(results.length == 1 && results[0].value.of.i32 == 49);
 
   destroy(three);
