@@ -747,7 +747,6 @@ version (unittest) {
 
 unittest {
   import std.exception : assertThrown, collectExceptionMsg;
-  import std.string : cmp;
 
   auto engine = new Engine();
   auto store = new Store(engine);
