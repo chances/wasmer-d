@@ -10,8 +10,9 @@
 module wasmer;
 
 import std.conv : to;
-import std.functional : toDelegate;
 import std.traits : isCallable, Parameters;
+
+public import std.functional : toDelegate;
 
 public import wasmer.bindings;
 public import wasmer.bindings.funcs;
@@ -429,9 +430,9 @@ private enum bool isInt64(T) = __traits(isSame, T, long) || __traits(isSame, T, 
 private enum bool isFloat32(T) = __traits(isSame, T, float);
 private enum bool isFloat64(T) = __traits(isSame, T, double);
 
-///
-wasm_functype_t* functype(Func)(Func _, uint numResults = 0) if (isCallableAsFunction!Func) {
-  import std.meta : staticIndexOf, AliasSeq;
+/// Get the `wasm_functype_t` of a D function that satisfies `isCallableAsFunction`.
+wasm_functype_t* functype(Func)(Func _) if (isCallableAsFunction!Func) {
+  import std.meta : staticIndexOf;
   import std.traits : ReturnType, Unqual;
 
   alias Tail(Args...) = Args[1 .. $];
@@ -461,11 +462,17 @@ wasm_functype_t* functype(Func)(Func _, uint numResults = 0) if (isCallableAsFun
   static if (__traits(isSame, ReturnType!Func, Value)) {
     wasm_valtype_t*[1] rs = [wasm_valtype_new_anyref()];
     wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
-  } else static if (__traits(isSame, ReturnType!Func, Value[])) {
-    wasm_valtype_t*[numResults] rs;
-    for (auto i = 0; i < numResults; i += 1) {
-      rs[i] = wasm_valtype_new_anyref();
-    }
+  } else static if (isInt32!(ReturnType!Func)) {
+    wasm_valtype_t*[1] rs = [wasm_valtype_new_i32()];
+    wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
+  } else static if (isInt64!(ReturnType!Func)) {
+    wasm_valtype_t*[1] rs = [wasm_valtype_new_i64()];
+    wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
+  } else static if (isFloat32!(ReturnType!Func)) {
+    wasm_valtype_t*[1] rs = [wasm_valtype_new_f32()];
+    wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
+  } else static if (isFloat64!(ReturnType!Func)) {
+    wasm_valtype_t*[1] rs = [wasm_valtype_new_f64()];
     wasm_valtype_vec_new(&results, 1.to!ulong, rs.ptr);
   } else static if (__traits(isSame, ReturnType!Func, void))
     wasm_valtype_vec_new_empty(&results);
@@ -526,7 +533,7 @@ enum bool isInstance(T) = __traits(isSame, T, Instance);
 ///   $(LI <a href="https://dlang.org/spec/type.html#basic-data-types" title="The D Language Website">Basic Data Types</a>)
 ///   $(LI <a href="https://dlang.org/spec/function.html#param-storage" title="The D Language Website">Parameter Storage Classes</a>)
 /// )
-template isCallableAsFunction(T...) if (T.length == 1 && isCallable!T /*&& is (ReturnType!T == void) */) {
+template isCallableAsFunction(T...) if (T.length == 1 && isCallable!T) {
   import std.meta : allSatisfy, templateOr;
   import std.traits : isBoolean, isIntegral, isFloatingPoint;
 
@@ -570,6 +577,82 @@ class Function : Handle!wasm_func_t {
   /// Instantiate a D delegate to be called from WASM code.
   this(Store store, Module module_, wasm_functype_t* type, CallbackWithDelegate callback) {
     this(store, type, &callbackWithDelegate, new CallbackContext(module_, callback));
+  }
+  /// Instantiate a D function that satisfies `isCallableAsFunction` to be called from WASM code.
+  this(Func)(Store store, Module module_, Func callback) if (isCallableAsFunction!Func) {
+    this(
+      store, callback.functype, &callbackWithDelegate, new CallbackContext(module_,
+      (Module module_, Value[] arguments, Value[] results) => {
+        import std.meta : staticIndexOf, staticMap;
+        import std.traits : ParameterIdentifierTuple, ReturnType, Unqual;
+        import std.typecons : Tuple;
+
+        alias FuncParams = Parameters!Func;
+        alias FuncParamNames = ParameterIdentifierTuple!Func;
+        alias Tail(Args...) = Args[1 .. $];
+
+        // Parameter helper templates
+        enum int indexOf(T) = staticIndexOf!(T, FuncParams);
+        enum string paramName(T) = FuncParamNames[indexOf!T];
+
+        template diagnosticNameOf(T) {
+          static if (paramName!T != "")
+            enum string name = " '" ~ paramName!T ~ "'";
+          else
+            enum string name = "";
+          enum string diagnosticNameOf = "parameter " ~ text(indexOf!T + 1) ~ name ~
+            " of type `" ~ fullyQualifiedName!(Unqual!T) ~ "`";
+        }
+
+        Tuple!(staticMap!(Unqual, FuncParams)) params;
+
+        static foreach (Param; FuncParams) {
+          static if (isModule!(Unqual!Param)) {
+            params[indexOf!Param] = module_;
+          } else static if (isInt32!(Unqual!Param)) {
+            assert(arguments[indexOf!Param - 1].kind == wasm_valkind_enum.WASM_I32);
+            params[indexOf!Param] = arguments[indexOf!Param - 1].value.of.i32.to!(Unqual!Param);
+          } else static if (isInt64!(Unqual!Param)) {
+            assert(arguments[indexOf!Param - 1].kind == wasm_valkind_enum.WASM_I64);
+            params[indexOf!Param] = arguments[indexOf!Param - 1].value.of.i64.to!(Unqual!Param);
+          } else static if (isFloat32!(Unqual!Param)) {
+            assert(arguments[indexOf!Param - 1].kind == wasm_valkind_enum.WASM_F32);
+            params[indexOf!Param] = arguments[indexOf!Param - 1].value.of.f32;
+          } else static if (isFloat64!(Unqual!Param)) {
+            assert(arguments[indexOf!Param - 1].kind == wasm_valkind_enum.WASM_F64);
+            params[indexOf!Param] = arguments[indexOf!Param - 1].value.of.f64;
+          } else {
+            static assert(0, "Could not apply " ~ diagnosticNameOf!Param ~ " to callback delegate");
+          }
+        }
+
+        enum isNumericReturn = !__traits(isSame, ReturnType!Func, Value) &&
+          (
+            isInt32!(ReturnType!Func) || isInt64!(ReturnType!Func) ||
+            isFloat32!(ReturnType!Func) || isFloat64!(ReturnType!Func)
+          );
+
+        static if (__traits(isSame, ReturnType!Func, void)) {
+          assert(results.length == 0);
+          callback(params.expand);
+        } else static if (isNumericReturn) {
+          assert(results.length == 1);
+          results[0] = new Value(callback(params.expand));
+        } else static if (__traits(isSame, ReturnType!Func, Value)) {
+          assert(results.length == 1);
+          results[0] = callback(params.expand);
+        } else static if (__traits(isSame, ReturnType!Func, Value[])) {
+          auto cbResults = callback(params.expand);
+          assert(
+            cbResults.length >= results.length,
+            "Could not apply return values of callback delegate, expected " ~ text(results.length) ~
+              " results, but received " ~ text(cbResults.length)
+          );
+          results[0..cbResults.length] = cbResults;
+        } else
+          static assert(0, "Could not apply return value(s) of callback delegate");
+      }())
+    );
   }
   private this(wasm_func_t* func) {
     super(func);
@@ -662,19 +745,16 @@ unittest {
   assert(module_.valid, "Error compiling module!");
   int i = 42;
 
-  auto print = (Module module_, Value[] arguments, Value[] results) => {
-    assert(arguments.length == 1 && arguments[0].value.of.i32 == 7);
-    assert(results.length == 1);
-    results[0] = new Value(arguments[0].value.of.i32);
+  auto print = (Module module_, int value) => {
+    assert(value == 7);
+    return value;
   }();
   auto imports = [
-    new Function(
-      store, module_,
-      wasm_functype_new_1_1(wasm_valtype_new_i32(), wasm_valtype_new_i32()), print.toDelegate
-    ).asExtern,
+    new Function(store, module_, print.toDelegate).asExtern,
     new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &closure, &i).asExtern
   ];
   auto instance = module_.instantiate(imports);
+  assert(instance.valid);
   auto runFunc = Function.from(instance.exports[0]);
 
   assert(instance.exports[0].name == "run" && runFunc.valid, "Failed to get the `run` function!");
