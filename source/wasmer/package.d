@@ -72,7 +72,11 @@ unittest {
 
 /// All runtime objects are tied to a specific store.
 ///
+/// The store represents all global state that can be manipulated by WebAssembly programs. It consists of the runtime representation of all instances of functions, tables, memories, and globals that have been allocated during the life time of the abstract machine.
+///
 /// Multiple stores can be created, but their objects cannot interact. Every store and its objects must only be accessed in a single thread.
+///
+/// See_Also: <a href="https://webassembly.github.io/spec/core/exec/runtime.html#syntax-store" title="The WebAssembly Specification">Store - WebAssembly 1.1</a>
 class Store : Handle!wasm_store_t {
   ///
   const Engine engine;
@@ -260,7 +264,11 @@ unittest {
   assert(Module.deserialize(store, serializedModule).valid, "Error deserializing module!");
 }
 
+/// An external value, which is the runtime representation of an entity that can be imported or exported.
 ///
+/// It is an address denoting either a function instance, table instance, memory instance, or global instances in the shared `Store`.
+///
+/// See_Also: <a href="https://webassembly.github.io/spec/core/exec/runtime.html#external-values" title="The WebAssembly Specifcation">External Values - WebAssembly 1.1</a>
 class Extern : Handle!wasm_extern_t {
   private const wasm_exporttype_t* _type;
   ///
@@ -772,7 +780,13 @@ unittest {
   destroy(module_);
 }
 
+/// Used to immediately terminate execution and signal abnormal behavior to the execution environment.
 ///
+/// See_Also:
+/// $(UL
+///   $(LI <a href="https://webassembly.org/docs/security/#developers" title="The WebAssembly Website">Security - WebAssembly</a>)
+///   $(LI <a href="https://webassembly.github.io/spec/core/exec/runtime.html#syntax-trap" title="The WebAssembly Specifcation">Administrative Instructions - WebAssembly 1.1</a>)
+/// )
 class Trap : Handle!wasm_trap_t {
   ///
   const string message;
