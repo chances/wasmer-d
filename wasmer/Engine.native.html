@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Class Store - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
+		<title>Function Engine.native - wasmer-d</title><link rel="shortcut icon" href="https://github.com/WebAssembly/web-assembly-logo/raw/bcebf215c6ec0bdd87a3b0d8fddc0bb69d93e26a/dist/icon/web-assembly-icon.svg">
 		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
 		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
@@ -72,60 +72,22 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Class Store</h1><p>All runtime objects are tied to a specific store.
+			<h1>Function Engine.native</h1><p>Instantiate a new native wasmer engine.
 </p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
-			<span class="kwd">class</span> <span class="typ">Store</span>
-			<br>&nbsp;&nbsp;: <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="typ">Handle</span>!(wasmer.bindings.wasm_store_t)
-			<span class="pun">;</span>
+			<span class="kwd">static </span><a href="../wasmer/Engine.html"><span class="typ">Engine</span></a> <span class="pln">native</span>
+			<span class="pun">(</span>
+			<br/>
+			&nbsp;&nbsp;<span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">_Anonymous_2</span> <span class="pln">compiler</span> <span class="pun">=</span> <span class="kwd">cast</span><span class="pun">(</span><span class="pln">_Anonymous_2</span><span class="pun">)</span><span class="lit">0</span>
+			<br/>
+			<span class="pun">)</span><span class="pun">;</span>
 					</div>
 				</code>
 			</div>
-			<section><p>The store represents all global state that can be manipulated by WebAssembly programs. It consists of the runtime representation of all instances of functions, tables, memories, and globals that have been allocated during the life time of the abstract machine.
-</p>
-
-<p>Multiple stores can be created, but their objects cannot interact. Every store and its objects must only be accessed in a single thread.
-</p>
-</section>
-
-			<section><h2>Constructors</h2>
-				<table>
-					<col class="caption"/>
-					<tr>
-						<th>Name</th><th>Description</th>
-					</tr>
-					<tr>
-						<td>
-							<a href="../wasmer/Store.this.html" class="public">
-								<code>this</code>
-							</a>
-							<span class="tableEntryAnnotation">(engine)</span>
-						</td>
-						<td></td>
-					</tr>
-				</table>
-			</section>
-			<section><h2>Fields</h2>
-				<table>
-					<col class="caption"/>
-					<tr>
-						<th>Name</th><th>Type</th><th>Description</th>
-					</tr>
-					<tr>
-						<td>
-							<a href="../wasmer/Store.engine.html" class="public"><code>engine</code></a>
-						</td>
-						<td class="typecol"><code class="prettyprint lang-d"><span class="kwd">const</span><span class="pun">(</span><a href="../wasmer/Engine.html"><span class="typ">Engine</span></a><span class="pun">)</span></code></td><td></td>
-					</tr>
-				</table>
-			</section>
-			<section><h2>See Also</h2>
-<p><a href="https://webassembly.github.io/spec/core/exec/runtime.html#syntax-store" title="The WebAssembly Specification">Store - WebAssembly 1.1</a>
-</p>
-</section>
-
+			
+			
 			<footer>
 				<table class="license-info">
 					<tr>

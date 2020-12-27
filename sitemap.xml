@@ -4,12 +4,16 @@
 <url><loc>http://127.0.0.1/wasmer/bindings/funcs.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Callback.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/CallbackWithDelegate.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/CallbackWithEnv.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Engine.jit.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Engine.native.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Engine.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.kind.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Extern.name.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Extern.type.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.asExtern.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.call.html</loc></url>
@@ -17,6 +21,10 @@
 <url><loc>http://127.0.0.1/wasmer/Function.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Function.type.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/functype.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Handle.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Handle.borrowed.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Handle.handle.html</loc></url>
@@ -24,7 +32,12 @@
 <url><loc>http://127.0.0.1/wasmer/Handle.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Handle.valid.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Instance.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Instance.hostInfo.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Instance.hostInfo.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Instance.this.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/isCallableAsFunction.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/isInstance.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/isModule.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Limits.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Memory.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Memory.data.html</loc></url>
@@ -38,8 +51,6 @@
 <url><loc>http://127.0.0.1/wasmer/Module.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.deserialize.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.from.html</loc></url>
-<url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
-<url><loc>http://127.0.0.1/wasmer/Module.hostInfo.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.instantiate.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.serialize.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Module.this.html</loc></url>
@@ -55,6 +66,7 @@
 <url><loc>http://127.0.0.1/wasmer/Trap.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Trap.this.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/Value.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.from.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.kind.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Value.this.html</loc></url>

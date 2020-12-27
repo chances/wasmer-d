@@ -72,7 +72,8 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Class Engine</h1><p></p>
+			<h1>Class Engine</h1><p>A wasmer engine used to instntiate a <code class="lang-d"><a href="../wasmer/Store.html"><span class="typ">Store</span></a></code>.
+</p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
@@ -96,7 +97,36 @@ $('#symbolSearchPane').show();</script>
 							</a>
 							<span class="tableEntryAnnotation">()</span>
 						</td>
-						<td></td>
+						<td>Instantiate a new wasmer JIT engine with the default compiler.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Methods</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Engine.jit.html" class="public">
+								<code>jit</code>
+							</a>
+							<span class="tableEntryAnnotation">(compiler)</span>
+						</td>
+						<td>Instantiate a new JITed wasmer engine.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Engine.native.html" class="public">
+								<code>native</code>
+							</a>
+							<span class="tableEntryAnnotation">(compiler)</span>
+						</td>
+						<td>Instantiate a new native wasmer engine.
+</td>
 					</tr>
 				</table>
 			</section>

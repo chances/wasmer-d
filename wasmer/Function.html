@@ -100,6 +100,26 @@ $('#symbolSearchPane').show();</script>
 						<td>Instantiate a D function to be called from WASM code.
 </td>
 					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Function.this.html" class="public">
+								<code>this</code>
+							</a>
+							<span class="tableEntryAnnotation">(store, module_, type, callback)</span>
+						</td>
+						<td>Instantiate a D delegate to be called from WASM code.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Function.this.html" class="public">
+								<code>this</code>
+							</a>
+							<span class="tableEntryAnnotation">(store, module_, callback)</span>
+						</td>
+						<td>Instantiate a D function that satisfies <code class="lang-d"><a href="../wasmer/isCallableAsFunction.html"><span class="pln">isCallableAsFunction</span></a></code> to be called from WASM code.
+</td>
+					</tr>
 				</table>
 			</section>
 			<section><h2>Properties</h2>
@@ -110,9 +130,15 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 					<tr>
 						<td>
-							<a href="../wasmer/Function.asExtern.html" class="public property"><code>asExtern</code></a><span class="tableEntryAnnotation">[get]</span>
+							<a href="../wasmer/Function.asExtern.html" class="public property"><code>asExtern</code></a><span class="tableEntryAnnotation">[set]</span>
 						</td>
 						<td class="typecol"><code class="prettyprint lang-d"><a href="../wasmer/Extern.html"><span class="typ">Extern</span></a></code></td><td></td>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Function.type.html" class="public property"><code>type</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_functype_t</span><span class="pun">*</span></code></td><td></td>
 					</tr>
 				</table>
 			</section>

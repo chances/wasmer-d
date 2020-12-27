@@ -83,6 +83,24 @@ $('#symbolSearchPane').show();</script>
 </section>
 </section>
 			<section>
+				<h2>Functions</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="functype" class="public" href="./wasmer/functype.html">functype</a><span class="tableEntryAnnotation">(_)</span>
+							</code>
+						</td>
+						<td>Get the <code class="lang-d"><span class="pln">wasm_functype_t</span></code> of a D function that satisfies <code class="lang-d"><a href="./wasmer/isCallableAsFunction.html"><span class="pln">isCallableAsFunction</span></a></code>.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section>
 				<h2>Classes</h2>
 				<table>
 					<col class="caption"/>
@@ -95,7 +113,8 @@ $('#symbolSearchPane').show();</script>
 								<a id="Engine" class="public" href="./wasmer/Engine.html">Engine</a>
 							</code>
 						</td>
-						<td></td>
+						<td>A wasmer engine used to instntiate a <code class="lang-d"><a href="./wasmer/Store.html"><span class="typ">Store</span></a></code>.
+</td>
 					</tr>
 					<tr>
 						<td>
@@ -103,7 +122,8 @@ $('#symbolSearchPane').show();</script>
 								<a id="Extern" class="public" href="./wasmer/Extern.html">Extern</a>
 							</code>
 						</td>
-						<td></td>
+						<td>An external value, which is the runtime representation of an entity that can be imported or exported.
+</td>
 					</tr>
 					<tr>
 						<td>
@@ -165,7 +185,8 @@ $('#symbolSearchPane').show();</script>
 								<a id="Trap" class="public" href="./wasmer/Trap.html">Trap</a>
 							</code>
 						</td>
-						<td></td>
+						<td>Used to immediately terminate execution and signal abnormal behavior to the execution environment.
+</td>
 					</tr>
 					<tr>
 						<td>
@@ -184,6 +205,39 @@ $('#symbolSearchPane').show();</script>
 					<col class="caption"/>
 					<tr>
 						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a id="isCallableAsFunction" class="public" href="./wasmer/isCallableAsFunction.html">
+								<code>isCallableAsFunction</code>
+							</a>
+						</td>
+						<td>
+						</td>
+						<td>Detect whether <code class="lang-d"><span class="pln">T</span></code> is callable as a <code class="lang-d"><a href="./wasmer/Function.html"><span class="typ">Function</span></a></code>.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="isInstance" class="public" href="./wasmer/isInstance.html">
+								<code>isInstance</code>
+							</a>
+						</td>
+						<td>
+						</td>
+						<td>Detect whether <code class="lang-d"><span class="pln">T</span></code> is an <code class="lang-d"><a href="./wasmer/Instance.html"><span class="typ">Instance</span></a></code>.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="isModule" class="public" href="./wasmer/isModule.html">
+								<code>isModule</code>
+							</a>
+						</td>
+						<td>
+						</td>
+						<td>Detect whether <code class="lang-d"><span class="pln">T</span></code> is an <code class="lang-d"><a href="./wasmer/Module.html"><span class="typ">Module</span></a></code>.
+</td>
 					</tr>
 					<tr>
 						<td>
@@ -215,6 +269,18 @@ $('#symbolSearchPane').show();</script>
 							<code class="prettyprint lang-d"><span class="kwd">extern</span><span class="pun">(</span><span class="pln">C</span><span class="pun">)</span> <span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_trap_t</span><span class="pun">*</span> <span class="kwd">function</span><span class="pun">(</span><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span><span class="pun">, </span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_val_vec_t</span><span class="pun">*</span><span class="pun">)</span></code>
 						</td>
 						<td>A function to be called from WASM code.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<a id="CallbackWithDelegate" class="public" href="./wasmer/CallbackWithDelegate.html">
+								<code>CallbackWithDelegate</code>
+							</a>
+						</td>
+						<td>
+							<code class="prettyprint lang-d"><span class="typ">void</span> <span class="kwd">delegate</span><span class="pun">(</span><a href="./wasmer/Module.html"><span class="typ">Module</span></a><span class="pun">, </span><a href="./wasmer/Value.html"><span class="typ">Value</span></a><span class="pun">[]</span><span class="pun">, </span><a href="./wasmer/Value.html"><span class="typ">Value</span></a><span class="pun">[]</span><span class="pun">)</span></code>
+						</td>
+						<td>A delegate to be called from WASM code.
 </td>
 					</tr>
 					<tr>

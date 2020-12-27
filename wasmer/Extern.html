@@ -72,7 +72,8 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Class Extern</h1><p></p>
+			<h1>Class Extern</h1><p>An external value, which is the runtime representation of an entity that can be imported or exported.
+</p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
@@ -82,7 +83,10 @@ $('#symbolSearchPane').show();</script>
 					</div>
 				</code>
 			</div>
-			
+			<section><p>It is an address denoting either a function instance, table instance, memory instance, or global instances in the shared <code class="lang-d"><a href="../wasmer/Store.html"><span class="typ">Store</span></a></code>.
+</p>
+</section>
+
 			<section><h2>Fields</h2>
 				<table>
 					<col class="caption"/>
@@ -103,7 +107,25 @@ $('#symbolSearchPane').show();</script>
 					</tr>
 				</table>
 			</section>
-			
+			<section><h2>Properties</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../wasmer/Extern.type.html" class="public property"><code>type</code></a><span class="tableEntryAnnotation">[get]</span>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="kwd">const</span><span class="pun">(</span><span class="pln">wasmer<wbr/></span><span class="pun">.</span><span class="pln">bindings<wbr/></span><span class="pun">.</span><span class="pln">wasm_exporttype_t</span><span class="pun">*</span><span class="pun">)</span></code></td><td></td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>See Also</h2>
+<p><a href="https://webassembly.github.io/spec/core/exec/runtime.html#external-values" title="The WebAssembly Specifcation">External Values - WebAssembly 1.1</a>
+</p>
+</section>
+
 			<footer>
 				<table class="license-info">
 					<tr>
