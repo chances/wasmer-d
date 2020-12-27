@@ -299,7 +299,7 @@ class Extern : Handle!wasm_extern_t {
   ///
   const wasm_externkind_enum kind;
 
-  private this(wasm_extern_t* extern_, const wasm_exporttype_t* type, string name = "") {
+  package this(wasm_extern_t* extern_, const wasm_exporttype_t* type, string name = "") {
     super(extern_);
     this._type = type;
     this.name = name;
@@ -419,6 +419,12 @@ class Value : Handle!wasm_val_t {
     super(new wasm_val_t);
     handle.of.f64 = value;
   }
+  ///
+  this(wasm_ref_t* reference) {
+    this.kind = wasm_valkind_enum.WASM_ANYREF;
+    super(new wasm_val_t);
+    handle.of.ref_ = reference;
+  }
   private this(wasm_val_t value) {
     super(new wasm_val_t(value.kind, value.of));
     this.kind = value.kind.to!wasm_valkind_enum;
@@ -444,6 +450,94 @@ class Value : Handle!wasm_val_t {
   auto value() @property const {
     return handle;
   }
+}
+
+/// A WebAssembly reference value, wrapping some host value.
+///
+/// See_Also: <a href="https://github.com/WebAssembly/reference-types/blob/50e699f111381488f03ce7b09bd8e174091d1add/proposals/reference-types/Overview.md#readme" title="The WebAssembly Reference Type GitHub Repo">Reference Types Proposal - WebAssembly</a>
+class ForeignRef : Handle!wasm_ref_t {
+  ///
+  this(T)(Store store, ref T value) {
+    super(wasm_foreign_as_ref(wasm_foreign_new(store.handle)));
+    wasm_ref_set_host_info(handle, &value);
+  }
+  private this(wasm_ref_t* reference) {
+    super(reference, true);
+  }
+  ~this() {
+    if (valid && !borrowed) wasm_ref_delete(handle);
+  }
+
+  ///
+  static ForeignRef from(wasm_ref_t* reference) {
+    return new ForeignRef(reference);
+  }
+
+  ///
+  T* value(T)() @property const {
+    auto hostInfo = wasm_ref_get_host_info(handle);
+    if (hostInfo is null) return null;
+    return cast(T*) hostInfo;
+  }
+  ///
+  void value(T)(ref T value) @property {
+    wasm_ref_set_host_info(handle, &value);
+  }
+}
+
+version (unittest) {
+  const string wat_hostref_module =
+    "(module" ~
+    "" ~
+    "  (global $glob (export \"global\") (mut anyref) (ref.null))" ~
+    "" ~
+    "  (func (export \"global.set\") (param $r anyref)" ~
+    "    (global.set $glob (local.get $r))" ~
+    "  )" ~
+    "  (func (export \"global.get\") (result anyref)" ~
+    "    (global.get $glob)" ~
+    "  )" ~
+    ")";
+}
+
+unittest {
+  auto engine = new Engine();
+  auto store = new Store(engine);
+
+  auto module_ = Module.from(store, wat_hostref_module);
+  assert(module_.valid, "Error compiling module!");
+
+  auto instance = new Instance(store, module_);
+  assert(instance.valid, "Error instantiating module!");
+
+  assert(instance.exports.length == 3, "Error accessing exports!");
+  assert(instance.exports[0].kind == wasm_externkind_enum.WASM_EXTERN_GLOBAL);
+  assert(instance.exports[0].name == "global");
+  assert(instance.exports[1].kind == wasm_externkind_enum.WASM_EXTERN_FUNC);
+  assert(instance.exports[1].name == "global.set");
+  assert(instance.exports[2].kind == wasm_externkind_enum.WASM_EXTERN_FUNC);
+  assert(instance.exports[2].name == "global.get");
+
+  auto getGlobal = Function.from(instance.exports[1]);
+  assert(getGlobal.valid, "Error getting 'global.get' function export!");
+
+  auto setGlobal = Function.from(instance.exports[2]);
+  assert(setGlobal.valid, "Error getting 'global.set' function export!");
+
+  auto moduleRef = new ForeignRef(store, module_);
+  assert(moduleRef.valid, "Error creating foreign ref!");
+
+  Value[] results;
+  assert(setGlobal.call([new Value(moduleRef.handle)], results));
+
+  assert(getGlobal.call(results));
+  assert(results.length = 1 && results[0].kind == wasm_valkind_enum.WASM_ANYREF);
+
+  auto globalRef = ForeignRef.from(results[0].value.of.ref_);
+  assert(globalRef.valid && *globalRef.value!Module == module_);
+
+  destroy(instance);
+  destroy(module_);
 }
 
 /// A function to be called from WASM code.
