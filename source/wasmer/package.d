@@ -10,6 +10,7 @@
 module wasmer;
 
 import std.conv : to;
+import std.functional : toDelegate;
 import std.traits : isCallable, Parameters;
 
 public import wasmer.bindings;
@@ -170,16 +171,16 @@ unittest {
 
 /// A WebAssembly module.
 class Module : Handle!wasm_module_t {
-  private Store store;
+  private Store _store;
 
   ///
   this(Store store, ubyte[] wasmBytes) {
-    this.store = store;
+    this._store = store;
 
     wasm_byte_vec_t bytes;
     wasm_byte_vec_new(&bytes, wasmBytes.length, cast(char*) wasmBytes.ptr);
 
-    super(wasm_module_new(cast(wasm_store_t*) store.handle, &bytes));
+    super(wasm_module_new(store.handle, &bytes));
     wasm_byte_vec_delete(&bytes);
   }
   private this(wasm_module_t* module_) {
@@ -213,10 +214,14 @@ class Module : Handle!wasm_module_t {
     return wasm_module_validate(store.handle, &dataVec);
   }
 
+  const(Store) store() @property const {
+    return _store;
+  }
+
   /// Creates a new `Instance` of this module from the given imports, if any.
   Instance instantiate(Extern[] imports = []) {
     assert(valid);
-    return new Instance(store, this, imports);
+    return new Instance(_store, this, imports);
   }
 
   /// Serializes this module, the result can be saved and later deserialized back into an executable module.
@@ -481,8 +486,10 @@ private extern(C) wasm_trap_t* callbackWithDelegate(
   import std.array : array;
   import std.string : toStringz;
 
+  assert(env);
+  auto context = cast(CallbackContext*) env;
+
   try {
-    auto context = cast(CallbackContext*) env;
     // Forward arguments to the managed callback
     Value[] argumentsManaged = arguments.data[0..arguments.size].map!(arg => Value.from(arg)).array;
     auto resultsManaged = new Value[results.size];
@@ -496,7 +503,7 @@ private extern(C) wasm_trap_t* callbackWithDelegate(
   } catch (Exception ex) {
     wasm_name_t message;
     wasm_name_new_from_string_nt(&message, toStringz(ex.msg));
-    wasm_trap_t* trap = wasm_trap_new(cast(wasm_store_t*) env, &message);
+    wasm_trap_t* trap = wasm_trap_new(context.module_.store.handle, &message);
     wasm_name_delete(&message);
     return trap;
   }
@@ -660,7 +667,6 @@ unittest {
     assert(results.length == 1);
     results[0] = new Value(arguments[0].value.of.i32);
   }();
-  import std.functional : toDelegate;
   auto imports = [
     new Function(
       store, module_,
@@ -692,10 +698,12 @@ class Trap : Handle!wasm_trap_t {
   const string message;
   ///
   this(wasm_trap_t* trap) {
+    import std.string : fromStringz;
+
     super(trap, true);
     wasm_name_t messageVec;
     wasm_trap_message(trap, &messageVec);
-    this.message = messageVec.data[0..messageVec.size].idup;
+    this.message = messageVec.data.fromStringz.to!string;
   }
   ///
   this(Store store, string message = "") {
@@ -735,26 +743,24 @@ version (unittest) {
     "  (func (export \"callback\") (result i32) (call $callback))" ~
     "  (func (export \"unreachable\") (result i32) (unreachable) (i32.const 1))" ~
     ")";
-
-  package extern(C) wasm_trap_t* fail(void* env, const wasm_val_vec_t* args, wasm_val_vec_t* results) {
-    assert(env !is null);
-    wasm_name_t message;
-    wasm_name_new_from_string_nt(&message, "callback abort"c.ptr);
-    wasm_trap_t* trap = wasm_trap_new(cast(wasm_store_t*) env, &message);
-    wasm_name_delete(&message);
-    return trap;
-  }
 }
 
 unittest {
   import std.exception : assertThrown, collectExceptionMsg;
+  import std.string : cmp;
 
   auto engine = new Engine();
   auto store = new Store(engine);
   auto module_ = Module.from(store, wat_trap_module);
   assert(module_.valid, "Error compiling module!");
+
+  auto fail = (Module module_, Value[] arguments, Value[] results) => {
+    assert(arguments.length == 0);
+    assert(results.length == 1);
+    throw new Exception("callback abort");
+  }();
   auto imports = [
-    new Function(store, wasm_functype_new_0_1(wasm_valtype_new_i32()), &fail, store.handle).asExtern
+    new Function(store, module_, wasm_functype_new_0_1(wasm_valtype_new_i32()), fail.toDelegate).asExtern
   ];
   auto instance = new Instance(store, module_, imports);
   assert(instance.valid && instance.exports.length == 2, "Error accessing exports!");
@@ -763,12 +769,11 @@ unittest {
   assert(instance.exports[0].name == "callback" && callbackFunc.valid, "Failed to get the `callback` function!");
 
   Value[] results;
-  assertThrown(callbackFunc.call(results));
-  // TODO: Assert trap message equals "callback abort"
-  // assert(
-  //   collectExceptionMsg!Exception(callbackFunc.call(results)) == "callback abort",
-  //   "Error calling exported function, expected trap!"
-  // );
+  assert(
+    collectExceptionMsg!Exception(callbackFunc.call(results)) == "callback abort",
+    "Error calling exported function, expected trap!"
+  );
+  assert(results.length == 0);
 
   destroy(instance);
   destroy(module_);
