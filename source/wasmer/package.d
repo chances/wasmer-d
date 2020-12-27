@@ -456,6 +456,7 @@ class Value : Handle!wasm_val_t {
 ///
 /// See_Also: <a href="https://github.com/WebAssembly/reference-types/blob/50e699f111381488f03ce7b09bd8e174091d1add/proposals/reference-types/Overview.md#readme" title="The WebAssembly Reference Type GitHub Repo">Reference Types Proposal - WebAssembly</a>
 class ForeignRef : Handle!wasm_ref_t {
+  ///
   this(T)(Store store, ref T value) {
     super(wasm_foreign_as_ref(wasm_foreign_new(store.handle)));
     wasm_ref_set_host_info(handle, &value);
