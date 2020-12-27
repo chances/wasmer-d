@@ -55,19 +55,42 @@ abstract class Handle(T) if (is(T == struct)) {
   }
 }
 
-///
+/// A wasmer engine used to instntiate a `Store`.
 final class Engine : Handle!wasm_engine_t {
-  ///
+  /// Instantiate a new wasmer JIT engine with the default compiler.
   this() {
     super(wasm_engine_new());
   }
+  private this(wasm_engine_t* engine) {
+    super(engine);
+  }
   ~this() {
     if (valid) wasm_engine_delete(handle);
+  }
+
+  /// Instantiate a new JITed wasmer engine.
+  static Engine jit(wasmer_compiler_t compiler = wasmer_compiler_t.CRANELIFT) {
+    auto config = wasm_config_new();
+    wasm_config_set_engine(config, wasmer_engine_t.JIT);
+    wasm_config_set_compiler(config, compiler);
+
+    return new Engine(wasm_engine_new_with_config(config));
+  }
+
+  /// Instantiate a new native wasmer engine.
+  static Engine native(wasmer_compiler_t compiler = wasmer_compiler_t.CRANELIFT) {
+    auto config = wasm_config_new();
+    wasm_config_set_engine(config, wasmer_engine_t.NATIVE);
+    wasm_config_set_compiler(config, compiler);
+
+    return new Engine(wasm_engine_new_with_config(config));
   }
 }
 
 unittest {
   assert(new Engine().valid);
+  assert(Engine.jit().valid);
+  assert(Engine.native().valid);
 }
 
 /// All runtime objects are tied to a specific store.
