@@ -19,9 +19,9 @@ jobs:
             source/**/*.d
             LICENSE
             README.md
-          # https://regex101.com/r/P3LblY/1
+          # https://regex101.com/r/P3LblY/2
           # https://github.com/marketplace/actions/update-license-copyright-year-s#i-want-to-update-my-license-but-it-isnt-supported-by-this-action
-          transform: (?<=[Copyright © |Copyright (c) |Copyright &copy; ])(?<from>\d{4})(-\d{4})?
+          transform: (?<=[Copyright © |Copyright (c) |Copyright &copy; ])(?<from>\d{4})(-\d{4})?(?=[ \w.]*$)
           branchName: license/{{currentYear}}
           commitTitle: Update licensing dates for {{currentYear}}
           prTitle: Happy New Year! 🎉️
