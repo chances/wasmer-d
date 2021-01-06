@@ -91,4 +91,4 @@ destroy(module_);
 
 [MIT Licence](https://opensource.org/licenses/MIT)
 
-Copyright &copy; 2020 Chance Snow. All rights reserved.
+Copyright &copy; 2020-2021 Chance Snow. All rights reserved.
