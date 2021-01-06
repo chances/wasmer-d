@@ -3,6 +3,8 @@ name: Documentation
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
@@ -10,6 +12,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: FantasticFiasco/action-update-license-year@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: |
+            source/**/*.d
+            LICENSE
+            README.md
+          # https://github.com/marketplace/actions/update-license-copyright-year-s#i-want-to-update-my-license-but-it-isnt-supported-by-this-action
+          transform: (?<=[Copyright © |Copyright (c) |Copyright &copy; ])(?<from>\d{4})(-\d{4})?
+          branchName: license/{{currentYear}}
+          commitTitle: Update licensing dates for {{currentYear}}
+          prTitle: Happy New Year! 🎉️
+          prBody: Update licensing copyright dates for {{currentYear}}.
+          labels: documentation
       - name: Install D compiler
         uses: dlang-community/setup-dlang@v1
         with:
@@ -30,7 +46,7 @@ jobs:
         run: make docs
 
       - name: GitHub Pages
-        if: success()
+        if: success() && github.ref == 'refs/heads/master'
         uses: crazy-max/ghaction-github-pages@v2.1.2
         with:
           target_branch: gh-pages
