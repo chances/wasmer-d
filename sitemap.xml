@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>http://127.0.0.1/index.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/bindings/funcs.html</loc></url>
+<url><loc>http://127.0.0.1/wasmer/bindings.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/Callback.html</loc></url>
 <url><loc>http://127.0.0.1/wasmer/CallbackWithDelegate.html</loc></url>
