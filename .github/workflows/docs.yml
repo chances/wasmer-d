@@ -10,6 +10,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: FantasticFiasco/action-update-license-year@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: |
+            source/**/*.d
+            views/**/*.html
+            LICENSE
+            README.md
+          branchName: license/{{currentYear}}
+          commitTitle: Update licensing dates for {{currentYear}}
+          prTitle: Happy New Year! 🎉️
+          prBody: Update licensing copyright dates for {{currentYear}}.
+          labels: documentation
       - name: Install D compiler
         uses: dlang-community/setup-dlang@v1
         with:
