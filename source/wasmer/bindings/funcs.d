@@ -1,6 +1,10 @@
 /// Convenience functions
 ///
-/// See_Also: <a href="https://github.com/wasmerio/wasmer/blob/b11a3831f75971874bc567ec611f4f4c9e2acdf5/lib/c-api/tests/wasm-c-api/include/wasm.h#L527">wasm.h</a>
+/// See_Also:
+/// $(UL
+///   $(LI <a href="https://github.com/chances/wasmer-d/blob/26a3cb32c79508dc2b8b33e9d2d176a3d6debdf1/source/wasmer/bindings/funcs.d">`wasmer.bindings.funcs` Source Code</a>)
+///   $(LI <a href="https://github.com/wasmerio/wasmer/blob/b11a3831f75971874bc567ec611f4f4c9e2acdf5/lib/c-api/tests/wasm-c-api/include/wasm.h#L527">wasm.h</a>)
+/// )
 ///
 /// Authors: Chance Snow
 /// Copyright: Copyright © 2020 Chance Snow. All rights reserved.
