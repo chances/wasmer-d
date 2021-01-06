@@ -5,7 +5,7 @@
 		"Chance Snow"
 	],
 	"license": "MIT",
-	"copyright": "Copyright © 2020, Chance Snow",
+	"copyright": "Copyright © 2020-2021, Chance Snow",
   "targetType": "library",
   "systemDependencies": "linux: wasmer-1.0.0-rc1",
 	"preGenerateCommands": [

@@ -7,7 +7,7 @@
 /// )
 ///
 /// Authors: Chance Snow
-/// Copyright: Copyright © 2020 Chance Snow. All rights reserved.
+/// Copyright: Copyright © 2020-2021 Chance Snow. All rights reserved.
 /// License: MIT License
 module wasmer.bindings;
 
