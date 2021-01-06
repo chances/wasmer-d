@@ -17,9 +17,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: |
             source/**/*.d
-            views/**/*.html
             LICENSE
             README.md
+          # https://github.com/marketplace/actions/update-license-copyright-year-s#i-want-to-update-my-license-but-it-isnt-supported-by-this-action
+          transform: (?<=[Copyright © |Copyright (c) |Copyright &copy; ])(?<from>\d{4})(-\d{4})?
           branchName: license/{{currentYear}}
           commitTitle: Update licensing dates for {{currentYear}}
           prTitle: Happy New Year! 🎉️
