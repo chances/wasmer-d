@@ -1,3 +1,14 @@
+/// Bindings to the <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime C API</a>.
+///
+/// See_Also:
+/// $(UL
+///   $(LI <a href="https://github.com/chances/wasmer-d/blob/26a3cb32c79508dc2b8b33e9d2d176a3d6debdf1/source/wasmer/bindings/package.d">`wasmer.bindings` Source Code</a>)
+///   $(LI The official <a href="https://github.com/wasmerio/wasmer/tree/master/lib/c-api#readme">Wasmer Runtime C API</a> documentation.)
+/// )
+///
+/// Authors: Chance Snow
+/// Copyright: Copyright © 2020 Chance Snow. All rights reserved.
+/// License: MIT License
 module wasmer.bindings;
 
 

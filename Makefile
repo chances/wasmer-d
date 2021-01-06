@@ -58,13 +58,10 @@ docs/sitemap.xml: $(SOURCES)
 docs: docs/sitemap.xml
 .PHONY: docs
 
-clean:
+clean: clean-docs
 	rm -f source/wasmer/bindings/package.d
 	rm -f bin/headless
 	rm -f $(EXAMPLES)
-	rm -f docs.json
-	rm -f docs/sitemap.xml docs/file_hashes.json
-	rm -rf `find docs -name '*.html'`
 	rm -f -- *.lst
 .PHONY: clean
 
