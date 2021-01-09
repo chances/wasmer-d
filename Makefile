@@ -15,19 +15,6 @@ source/wasmer/bindings/package.d:
 	dub run dpp -- --preprocess-only --no-sys-headers --ignore-macros --include-path "/usr/lib/llvm-6.0/lib/clang/6.0.0/include" --include-path "$(WASMER_DIR)/include" source/wasmer/bindings/wasmer.dpp
 	@mv source/wasmer/bindings/wasmer.d source/wasmer/bindings/package.d
 
-EXAMPLES := bin/hello-world
-examples: $(EXAMPLES)
-.PHONY: examples
-
-# HELLO_WORLD_SOURCES := $(shell find examples/hello-world/source -name '*.d')
-# HELLO_WORLD_JS := $(shell find examples/hello-world/source -name '*.js')
-# bin/hello-world: $(SOURCES) $(HELLO_WORLD_SOURCES) $(HELLO_WORLD_JS)
-# 	cd examples/hello-world && dub build
-
-# hello-world: bin/hello-world
-# 	@bin/hello-world
-# .PHONY: hello-world
-
 test:
 	env LD_LIBRARY_PATH=$(WASMER_DIR)/lib dub test --parallel
 .PHONY: test
