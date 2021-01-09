@@ -690,7 +690,7 @@ class Function : Handle!wasm_func_t {
   }
 
   ///
-  static Function from(Extern extern_) {
+  static Function from(const Extern extern_) {
     return new Function(wasm_extern_as_func(cast(wasm_extern_t*) extern_.handle));
   }
 

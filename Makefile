@@ -19,14 +19,14 @@ EXAMPLES := bin/hello-world
 examples: $(EXAMPLES)
 .PHONY: examples
 
-HELLO_WORLD_SOURCES := $(shell find examples/hello-world/source -name '*.d')
-HELLO_WORLD_JS := $(shell find examples/hello-world/source -name '*.js')
-bin/hello-world: $(SOURCES) $(HELLO_WORLD_SOURCES) $(HELLO_WORLD_JS)
-	cd examples/hello-world && dub build
+# HELLO_WORLD_SOURCES := $(shell find examples/hello-world/source -name '*.d')
+# HELLO_WORLD_JS := $(shell find examples/hello-world/source -name '*.js')
+# bin/hello-world: $(SOURCES) $(HELLO_WORLD_SOURCES) $(HELLO_WORLD_JS)
+# 	cd examples/hello-world && dub build
 
-hello-world: bin/hello-world
-	@bin/hello-world
-.PHONY: hello-world
+# hello-world: bin/hello-world
+# 	@bin/hello-world
+# .PHONY: hello-world
 
 test:
 	env LD_LIBRARY_PATH=$(WASMER_DIR)/lib dub test --parallel
