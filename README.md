@@ -12,7 +12,7 @@ Also includes an idiomatic D wrapper of the [Wasmer Runtime C API](https://githu
 
 ```json
 "dependencies": {
-    "wasmer": "0.1.0"
+    "wasmer": "0.2.0"
 }
 ```
 
